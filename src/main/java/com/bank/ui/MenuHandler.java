@@ -97,7 +97,9 @@ public class MenuHandler {
         String confirm = readString("\nConfirm update? (Y/N): ").toUpperCase();
 
         if (confirm.equals("Y")) {
-            accountManager.updateCustomerDetails(accNumber, newName, newContact, newAddress);
+            if (accountManager.updateCustomerDetails(accNumber, newName, newContact, newAddress)) {
+                Printer.printCustomerUpdateSuccess(acc);
+            }
         } else {
             System.out.println("Update cancelled.");
         }
@@ -107,7 +109,8 @@ public class MenuHandler {
     }
 
     private void handleViewAccounts() {
-        accountManager.viewAllAccounts();
+        Printer.printAllAccounts(accountManager.getAccounts(), accountManager.getAccountCount(), accountManager.getTotalBalance());
+        readString("\nPress Enter to continue...");
     }
 
     private void handleCreateAccount() {
@@ -157,7 +160,12 @@ public class MenuHandler {
                 ? new SavingsAccount(newCustomer, deposit)
                 : new CheckingAccount(newCustomer, deposit);
 
-        accountManager.addAccount(newAccount);
+        if (accountManager.addAccount(newAccount)) {
+            Printer.printAccountAdded(newAccount);
+        } else {
+            System.out.println("Account list is full.");
+        }
+        readString("\nPress Enter to continue...");
     }
 
     private void handleTransaction() {
@@ -201,8 +209,11 @@ public class MenuHandler {
             try {
                 boolean success = acc.processTransaction(amount, transType);
                 if (success) {
-                    transactionManager.addTransaction(preview);
-                    System.out.println("\n✓ Transaction completed successfully!");
+                    if (transactionManager.addTransaction(preview)) {
+                        System.out.println("\n✓ Transaction completed successfully!");
+                    } else {
+                        System.out.println("✗ Transaction failed: Transaction memory is full.");
+                    }
                 } else {
                     System.out.println("✗ Transaction failed and was not recorded.");
                 }
@@ -225,7 +236,7 @@ public class MenuHandler {
         System.out.println("Account: " + acc.getAccountNumber() + " - " + acc.getCustomer().getName());
         System.out.println("Account Type: " + acc.getAccountType());
         System.out.printf("Current Balance: $%.2f%n", acc.getBalance());
-        transactionManager.viewTransactionsByAccount(acc.getAccountNumber());
+        Printer.printTransactionHistory(acc.getAccountNumber(), transactionManager.getTransactions(), transactionManager.getTransactionCount());
 
         readString("\nPress Enter to continue...");
     }
