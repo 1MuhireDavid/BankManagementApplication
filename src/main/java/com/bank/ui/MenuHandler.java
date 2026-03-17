@@ -1,23 +1,24 @@
 package com.bank.ui;
 
-import com.bank.account.Account;
-import com.bank.account.CheckingAccount;
-import com.bank.account.SavingsAccount;
-import com.bank.customer.Customer;
-import com.bank.customer.PremiumCustomer;
-import com.bank.customer.RegularCustomer;
-import com.bank.management.TransactionManager;
-import com.bank.transaction.Transaction;
-import com.bank.management.AccountManager;
+import com.bank.models.Account;
+import com.bank.models.CheckingAccount;
+import com.bank.models.SavingsAccount;
+import com.bank.models.Customer;
+import com.bank.models.PremiumCustomer;
+import com.bank.models.RegularCustomer;
+import com.bank.services.TransactionManager;
+import com.bank.models.Transaction;
+import com.bank.services.AccountManager;
 
 import java.util.Scanner;
 
+import static com.bank.utils.ValidationUtils.*;
+
 public class MenuHandler {
 
-    private final Scanner input = new Scanner(System.in);
-    private final AccountManager aManager = new AccountManager();
-    private final TransactionManager tManager = new TransactionManager();
-
+    private final AccountManager accountManager = new AccountManager();
+    private final TransactionManager transactionManager = new TransactionManager();
+    Scanner input = new Scanner(System.in);
     public void start() {
         System.out.println("-".repeat(50));
         System.out.println("||   BANK ACCOUNT MANAGEMENT - MAIN MENU   ||");
@@ -40,10 +41,7 @@ public class MenuHandler {
                 default -> System.out.println("Please input a valid choice (1-6).");
             }
         }
-        input.close();
     }
-
-
 
     private void printMenu() {
         System.out.println("\n1. Create Account");
@@ -54,48 +52,18 @@ public class MenuHandler {
         System.out.println("6. Exit");
     }
 
-    private int readInt(String prompt) {
+
+    private Account readAccount() {
         while (true) {
-            System.out.print(prompt);
             try {
-                return Integer.parseInt(input.nextLine().trim());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
+                String accNumber = readString("Enter Account Number: ").toUpperCase();
+                Account acc = accountManager.findAccount(accNumber);
+                if (acc == null)
+                    throw new com.bank.exception.InvalidAccountException("Account not found. Please try again.");
+                return acc;
+            } catch (com.bank.exception.InvalidAccountException e) {
+                System.out.println(e.getMessage());
             }
-        }
-    }
-
-    private double readDouble(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            try {
-                double val = Double.parseDouble(input.nextLine().trim());
-                if (val < 0) {
-                    System.out.println("Amount cannot be negative.");
-                    continue;
-                }
-                return val;
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
-            }
-        }
-    }
-
-    private String readString(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            String value = input.nextLine().trim();
-            if (!value.isEmpty()) return value;
-            System.out.println("Input cannot be empty. Please try again.");
-        }
-    }
-
-    private String readCustomerName() {
-        while (true) {
-            System.out.print("Enter customer name:");
-            String value = input.nextLine().trim();
-            if (!value.isEmpty() && value.matches("[a-zA-Z ]+")) return value;
-            System.out.println("Invalid name. Please enter a valid name.");
         }
     }
 
@@ -105,12 +73,11 @@ public class MenuHandler {
 
         String accNumber = readString("Enter Account Number: ").toUpperCase();
 
-        Account acc = aManager.findAccount(accNumber);
+        Account acc = accountManager.findAccount(accNumber);
         if (acc == null) {
             System.out.println("Account not found.");
             return;
         }
-
 
         System.out.println("\nCurrent Customer Details:");
         System.out.println("Name:    " + acc.getCustomer().getName());
@@ -118,21 +85,19 @@ public class MenuHandler {
         System.out.println("Address: " + acc.getCustomer().getAddress());
         System.out.println("\n(Press Enter to keep the current value)");
 
-
         System.out.print("New Name [" + acc.getCustomer().getName() + "]: ");
-        String newName = input.nextLine().trim();
+        String newName = new Scanner(System.in).nextLine().trim();
 
         System.out.print("New Contact [" + acc.getCustomer().getContact() + "]: ");
-        String newContact = input.nextLine().trim();
+        String newContact = new Scanner(System.in).nextLine().trim();
 
         System.out.print("New Address [" + acc.getCustomer().getAddress() + "]: ");
-        String newAddress = input.nextLine().trim();
+        String newAddress = new Scanner(System.in).nextLine().trim();
 
-        System.out.print("\nConfirm update? (Y/N): ");
-        String confirm = input.nextLine().trim().toUpperCase();
+        String confirm = readString("\nConfirm update? (Y/N): ").toUpperCase();
 
         if (confirm.equals("Y")) {
-            aManager.updateCustomerDetails(accNumber, newName, newContact, newAddress);
+            accountManager.updateCustomerDetails(accNumber, newName, newContact, newAddress);
         } else {
             System.out.println("Update cancelled.");
         }
@@ -142,7 +107,7 @@ public class MenuHandler {
     }
 
     private void handleViewAccounts() {
-        aManager.viewAllAccounts();
+        accountManager.viewAllAccounts();
     }
 
     private void handleCreateAccount() {
@@ -150,10 +115,16 @@ public class MenuHandler {
         System.out.println("-".repeat(40));
 
         String name = readCustomerName();
-        if (name.isEmpty()) { System.out.println("Name cannot be empty."); return; }
+        if (name.isEmpty()) {
+            System.out.println("Name cannot be empty.");
+            return;
+        }
 
         int age = readInt("Enter customer age: ");
-        if (age <= 0 || age > 150) { System.out.println("Invalid age."); return; }
+        if (age <= 0 || age > 150) {
+            System.out.println("Invalid age.");
+            return;
+        }
 
         String contact = readString("Enter customer contact: ");
         String address = readString("Enter customer address: ");
@@ -162,13 +133,19 @@ public class MenuHandler {
         System.out.println("1. Regular Customer");
         System.out.println("2. Premium Customer");
         int customerType = readInt("Select type (1-2): ");
-        if (customerType < 1 || customerType > 2) { System.out.println("Invalid customer type."); return; }
+        if (customerType < 1 || customerType > 2) {
+            System.out.println("Invalid customer type.");
+            return;
+        }
 
         System.out.println("\nAccount type:");
         System.out.println("1. Savings Account (Interest: 3.5%, Min Balance: $500)");
         System.out.println("2. Checking Account (Overdraft: $1,000, Monthly Fee: $10)");
         int accountType = readInt("Select type (1-2): ");
-        if (accountType < 1 || accountType > 2) { System.out.println("Invalid account type."); return; }
+        if (accountType < 1 || accountType > 2) {
+            System.out.println("Invalid account type.");
+            return;
+        }
 
         double deposit = readDouble("\nEnter initial deposit amount: $");
 
@@ -180,7 +157,7 @@ public class MenuHandler {
                 ? new SavingsAccount(newCustomer, deposit)
                 : new CheckingAccount(newCustomer, deposit);
 
-        aManager.addAccount(newAccount);
+        accountManager.addAccount(newAccount);
     }
 
     private void handleTransaction() {
@@ -188,10 +165,7 @@ public class MenuHandler {
         System.out.println("\nPROCESS TRANSACTION");
         System.out.println("-".repeat(40));
 
-        String accNumber = readString("Enter Account Number: ").toUpperCase();
-
-        Account acc = aManager.findAccount(accNumber);
-        if (acc == null) { System.out.println("Account not found."); return; }
+        Account acc = readAccount();
 
         System.out.println("\nAccount Details:");
         System.out.println("Customer:  " + acc.getCustomer().getName());
@@ -202,29 +176,38 @@ public class MenuHandler {
         System.out.println("1. Deposit");
         System.out.println("2. Withdrawal");
         int transTypeNum = readInt("Select type (1-2): ");
-        if (transTypeNum < 1 || transTypeNum > 2) { System.out.println("Invalid transaction type."); return; }
+        if (transTypeNum < 1 || transTypeNum > 2) {
+            System.out.println("Invalid transaction type.");
+            return;
+        }
 
         double amount = readDouble("Enter amount: $");
-        if (amount <= 0) { System.out.println("Amount must be greater than zero."); return; }
+        if (amount <= 0) {
+            System.out.println("Amount must be greater than zero.");
+            return;
+        }
 
         String transType = (transTypeNum == 1) ? "Deposit" : "Withdrawal";
 
         double previewBalance = transType.equals("Deposit")
                 ? acc.getBalance() + amount
                 : acc.getBalance() - amount;
-        Transaction preview = new Transaction(accNumber, transType, amount, previewBalance);
+        Transaction preview = new Transaction(acc.getAccountNumber(), transType, amount, previewBalance);
         preview.displayTransactionDetails();
 
-        System.out.print("Confirm transaction? (Y/N): ");
-        String confirm = input.nextLine().trim().toUpperCase();
+        String confirm = readString("Confirm transaction? (Y/N): ").toUpperCase();
 
         if (confirm.equals("Y")) {
-            boolean success = acc.processTransaction(amount, transType);
-            if (success) {
-                tManager.addTransaction(preview);
-                System.out.println("\n✓ Transaction completed successfully!");
-            } else {
-                System.out.println("✗ Transaction failed and was not recorded.");
+            try {
+                boolean success = acc.processTransaction(amount, transType);
+                if (success) {
+                    transactionManager.addTransaction(preview);
+                    System.out.println("\n✓ Transaction completed successfully!");
+                } else {
+                    System.out.println("✗ Transaction failed and was not recorded.");
+                }
+            } catch (RuntimeException e) {
+                System.out.println("✗ Transaction failed: " + e.getMessage());
             }
         } else {
             System.out.println("Transaction cancelled.");
@@ -238,21 +221,13 @@ public class MenuHandler {
         System.out.println("\nVIEW TRANSACTION HISTORY");
         System.out.println("-".repeat(40));
 
-        String accNumber = readString("Enter Account Number: ").toUpperCase();
-
-        Account acc = aManager.findAccount(accNumber);
-        if (acc == null) { System.out.println("Account not found."); return; }
-
+        Account acc = readAccount();
         System.out.println("Account: " + acc.getAccountNumber() + " - " + acc.getCustomer().getName());
         System.out.println("Account Type: " + acc.getAccountType());
         System.out.printf("Current Balance: $%.2f%n", acc.getBalance());
-        tManager.viewTransactionsByAccount(accNumber);
+        transactionManager.viewTransactionsByAccount(acc.getAccountNumber());
 
-        System.out.print("\nPress Enter to continue...");
-        input.nextLine();
+        readString("\nPress Enter to continue...");
     }
 
-
 }
-
-

@@ -1,4 +1,4 @@
-package com.bank.customer;
+package com.bank.models;
 
 public class PremiumCustomer extends Customer {
 
@@ -23,17 +23,17 @@ public class PremiumCustomer extends Customer {
     }
 
     @Override
-    public void displayCustomerDetails() {
-        System.out.println("==== Premium Customer  ====");
-        System.out.println("Customer name:  "+ getName());
-        System.out.println("Customer age:  "+ getAge());
-        System.out.println("Customer contact: "+ getContact());
-        System.out.println("Customer Address: "+ getAddress());
+    public boolean hasFeeWaived() {
+        return true;
     }
 
-
-    public boolean hasWaivedFees(){
-        return true;
+    @Override
+    public void displayCustomerDetails() {
+        System.out.println("==== Premium Customer  ====");
+        System.out.println("Customer name:  " + getName());
+        System.out.println("Customer age:  " + getAge());
+        System.out.println("Customer contact: " + getContact());
+        System.out.println("Customer Address: " + getAddress());
     }
 
 }

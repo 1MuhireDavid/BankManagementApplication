@@ -1,4 +1,4 @@
-package com.bank.customer;
+package com.bank.models;
 
 public abstract class Customer {
     private String customerId;
@@ -16,7 +16,9 @@ public abstract class Customer {
         this.contact = contact;
         this.address = address;
     }
+
     public abstract void displayCustomerDetails();
+
     public abstract String getCustomerType();
 
     public String getCustomerId() {
@@ -53,5 +55,9 @@ public abstract class Customer {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public boolean hasFeeWaived() {
+        return false;
     }
 }

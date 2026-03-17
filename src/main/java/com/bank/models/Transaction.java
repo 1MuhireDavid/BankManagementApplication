@@ -1,4 +1,4 @@
-package com.bank.transaction;
+package com.bank.models;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -75,13 +75,13 @@ public class Transaction {
         String line = "-".repeat(44);
         System.out.println("\nTRANSACTION CONFIRMATION");
         System.out.println(line);
-        System.out.printf("  %-20s: %s%n",        "Transaction ID",  transactionId);
-        System.out.printf("  %-20s: %s%n",        "Account",         accountNumber);
-        System.out.printf("  %-20s: %s%n",        "Type",            type.toUpperCase());
-        System.out.printf("  %-20s: $%,.2f%n",    "Amount",          amount);
-        System.out.printf("  %-20s: $%,.2f%n",    "Previous Balance", previousBalance);
-        System.out.printf("  %-20s: $%,.2f%n",    "New Balance",     balanceAfter);
-        System.out.printf("  %-20s: %s%n",        "Date/Time",       timestamp);
+        System.out.printf("  %-20s: %s%n", "Transaction ID", transactionId);
+        System.out.printf("  %-20s: %s%n", "Account", accountNumber);
+        System.out.printf("  %-20s: %s%n", "Type", type.toUpperCase());
+        System.out.printf("  %-20s: $%,.2f%n", "Amount", amount);
+        System.out.printf("  %-20s: $%,.2f%n", "Previous Balance", previousBalance);
+        System.out.printf("  %-20s: $%,.2f%n", "New Balance", balanceAfter);
+        System.out.printf("  %-20s: %s%n", "Date/Time", timestamp);
         System.out.println(line);
     }
 }

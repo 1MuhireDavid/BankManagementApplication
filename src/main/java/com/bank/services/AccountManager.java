@@ -1,14 +1,18 @@
-package com.bank.management;
+package com.bank.services;
 
-import com.bank.account.Account;
-import com.bank.account.CheckingAccount;
-import com.bank.account.SavingsAccount;
-import com.bank.customer.Customer;
-import com.bank.customer.PremiumCustomer;
-import com.bank.customer.RegularCustomer;
+import com.bank.models.Account;
+import com.bank.models.CheckingAccount;
+import com.bank.models.SavingsAccount;
+import com.bank.models.Customer;
+import com.bank.models.PremiumCustomer;
+import com.bank.models.RegularCustomer;
 import java.text.DecimalFormat;
 import java.util.Scanner;
 
+/**
+ * Manages the collection of bank accounts.
+ * Provides functionality to add, find, and view accounts, as well as update customer details.
+ */
 public class AccountManager {
     private final Account[] accounts;
     private int accountCount;
@@ -19,31 +23,25 @@ public class AccountManager {
         seedData();
     }
 
-    public void addAccount(Account account){
+    /**
+     * Adds a new account to the manager.
+     * Validates capacity before adding and prints a summary.
+     * @param account The account to add.
+     */
+    public void addAccount(Account account) {
         Scanner input = new Scanner(System.in);
         DecimalFormat df = new DecimalFormat("#.##");
 
-        if (accountCount < accounts.length){
+        if (accountCount < accounts.length) {
             accounts[accountCount] = account;
             accountCount++;
             System.out.println("✔️ Account added successfully!");
-            System.out.println("Account Number: "+ account.getAccountNumber());
-            System.out.print("Customer: "+ account.getCustomer().getName() );
+            System.out.println("Account Number: " + account.getAccountNumber());
+            System.out.print("Customer: " + account.getCustomer().getName());
             System.out.println(" (" + account.getCustomer().getCustomerType() + ")");
             System.out.println("Account Type: " + account.getAccountType());
             System.out.println("Initial Balance: $" + String.format("%.2f", account.getBalance()));
-
-            if (account instanceof SavingsAccount savings) {
-                System.out.println("Interest Rate: " + df.format(savings.getInterestRate() * 100) + "%");
-                System.out.printf("Minimum Balance: $%.2f%n", savings.getMinimumBalance());
-            } else if (account instanceof CheckingAccount checking) {
-                System.out.println("Overdraft Limit: $" + String.format("%.2f", checking.getOverdraftLimit()));
-                if (account.getCustomer() instanceof PremiumCustomer) {
-                    System.out.println("Monthly Fee: $0.00 (WAIVED - PREMIUM CUSTOMER)");
-                } else {
-                    System.out.println("Monthly Fee: $" + String.format("%.2f", checking.getMonthlyFee()));
-                }
-            }
+            System.out.println(account.getAccountSummaryLine());
             System.out.println("Status: " + account.getStatus());
             System.out.print("\nPress Enter to continue...");
             input.nextLine();
@@ -51,15 +49,25 @@ public class AccountManager {
             System.out.println("Account list is full.");
         }
     }
-    public Account findAccount(String accountNumber){
 
-        for(int i=0; i<accountCount;i++){
-            if(accounts[i].getAccountNumber().equals(accountNumber)){
-                return accounts[i];}
+    /**
+     * Finds an account by its exact account number.
+     * @param accountNumber The unique account identifier.
+     * @return The matching Account object, or null if not found.
+     */
+    public Account findAccount(String accountNumber) {
+
+        for (int i = 0; i < accountCount; i++) {
+            if (accounts[i].getAccountNumber().equals(accountNumber)) {
+                return accounts[i];
+            }
         }
         return null;
     }
 
+    /**
+     * Displays a formatted list of all active accounts in the system.
+     */
     public void viewAllAccounts() {
         if (accountCount == 0) {
             System.out.println("No accounts available.");
@@ -82,19 +90,7 @@ public class AccountManager {
                     acc.getAccountType(),
                     String.format("%,.2f", acc.getBalance()),
                     acc.getStatus());
-
-            if (acc instanceof SavingsAccount savings) {
-                System.out.printf("         | Interest Rate: %.1f%%   | Min Balance: $%,.2f%n",
-                        savings.getInterestRate() * 100,
-                        savings.getMinimumBalance());
-            } else if (acc instanceof CheckingAccount checking) {
-                String feeStr = acc.getCustomer() instanceof PremiumCustomer
-                        ? "$0.00 (WAIVED)"
-                        : String.format("$%,.2f", checking.getMonthlyFee());
-                System.out.printf("         | Overdraft Limit: $%,-8.2f | Monthly Fee: %s%n",
-                        checking.getOverdraftLimit(),
-                        feeStr);
-            }
+            System.out.printf("         | %s%n", acc.getAccountSummaryLine());
 
             System.out.println();
         }
@@ -106,6 +102,10 @@ public class AccountManager {
         new java.util.Scanner(System.in).nextLine();
     }
 
+    /**
+     * Calculates the total balance across all managed accounts.
+     * @return The aggregated balance as a double.
+     */
     public double getTotalBalance() {
         double totalBalance = 0.0;
         for (int i = 0; i < accountCount; i++) {
@@ -114,10 +114,18 @@ public class AccountManager {
         return totalBalance;
     }
 
-    public int getAccountCount(){
+    public int getAccountCount() {
         return accountCount;
     }
 
+    /**
+     * Updates customer details for a specific bank account.
+     * Fields passed as null or blank are ignored.
+     * @param accountNumber The account associated with the customer.
+     * @param newName Optional new name.
+     * @param newContact Optional new contact.
+     * @param newAddress Optional new address.
+     */
     public void updateCustomerDetails(String accountNumber, String newName, String newContact, String newAddress) {
         Account account = findAccount(accountNumber);
         if (account == null) {
@@ -151,10 +159,10 @@ public class AccountManager {
     }
 
     private void seedData() {
-        insert(new SavingsAccount(new RegularCustomer("Kwizera James", 34, "0788320831", "KK 143 St"),   1500.00));
-        insert(new SavingsAccount(new PremiumCustomer("Mugabo Denis",  45, "0733320831", "Nyagatare"),   5000.00));
-        insert(new SavingsAccount(new RegularCustomer("Hirwa Jesse",   28, "0799320831", "Bugesera"),     800.00));
-        insert(new CheckingAccount(new PremiumCustomer("Igabe Rich",   52, "0784220831", "Gasabo"),       500.00));
-        insert(new CheckingAccount(new RegularCustomer("Agaba James",  39, "0723320831", "KK 123 St"),   1200.00));
+        insert(new SavingsAccount(new RegularCustomer("Kwizera James", 34, "0788320831", "KK 143 St"), 1500.00));
+        insert(new SavingsAccount(new PremiumCustomer("Mugabo Denis", 45, "0733320831", "Nyagatare"), 5000.00));
+        insert(new SavingsAccount(new RegularCustomer("Hirwa Jesse", 28, "0799320831", "Bugesera"), 800.00));
+        insert(new CheckingAccount(new PremiumCustomer("Igabe Rich", 52, "0784220831", "Gasabo"), 500.00));
+        insert(new CheckingAccount(new RegularCustomer("Agaba James", 39, "0723320831", "KK 123 St"), 1200.00));
     }
 }

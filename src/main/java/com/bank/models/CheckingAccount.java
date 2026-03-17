@@ -1,17 +1,19 @@
-package com.bank.account;
+package com.bank.models;
 
-import com.bank.customer.Customer;
-import com.bank.customer.PremiumCustomer;
+import com.bank.exception.InvalidAmountException;
+import com.bank.exception.OverdraftExceededException;
 
-public class CheckingAccount extends Account{
+public class CheckingAccount extends Account {
+    private static final double DEFAULT_OVERDRAFT_LIMIT = 1000.0;
+    private static final double DEFAULT_MONTHLY_FEE = 10.0;
+
     private double overdraftLimit;
     private double monthlyFee;
 
-
     public CheckingAccount(Customer customer, double initialBalance) {
         super(customer, initialBalance);
-        this.monthlyFee = 10;
-        this.overdraftLimit = 1000;
+        this.monthlyFee = DEFAULT_MONTHLY_FEE;
+        this.overdraftLimit = DEFAULT_OVERDRAFT_LIMIT;
     }
 
     @Override
@@ -34,35 +36,33 @@ public class CheckingAccount extends Account{
         return "Checking";
     }
 
-    public double getOverdraftLimit() {
-        return overdraftLimit;
-    }
-
-    public double getMonthlyFee() {
-        return monthlyFee;
+    @Override
+    public String getAccountSummaryLine() {
+        return String.format("Overdraft Limit: $%,-8.2f | Monthly Fee: %s",
+                overdraftLimit, getMonthlyFeeDisplay());
     }
 
     @Override
     public void withdraw(double amount) {
         if (amount <= 0) {
-            System.out.println("Withdrawal failed: amount must be positive.");
-            return;
-        } else if (amount <= getBalance() + overdraftLimit) {
-            setBalance(getBalance() - amount);
-            System.out.println("Withdrawn: $" + String.format("%.2f", amount));
-            return;
-        } else {
-            System.out.println("Withdraw denied: exceeds overdraft limit.");
+            throw new InvalidAmountException("Withdrawal amount must be positive.");
         }
+        if (amount > getBalance() + overdraftLimit) {
+            throw new OverdraftExceededException("Exceeds overdraft limit.");
+        }
+        setBalance(getBalance() - amount);
     }
 
     public void applyMonthlyFee() {
-        if (getCustomer() instanceof PremiumCustomer) {
-            System.out.println("Monthly fee waived for premium main.bank.customer.");
+        if (getCustomer().hasFeeWaived())
             return;
-        }
         setBalance(getBalance() - monthlyFee);
-        System.out.println("Monthly fee of $" + String.format("%.2f", monthlyFee) + " applied.");
+    }
+
+    private String getMonthlyFeeDisplay() {
+        return getCustomer().hasFeeWaived()
+                ? "$0.00 (WAIVED - PREMIUM)"
+                : String.format("$%,.2f", monthlyFee);
     }
 
 }
