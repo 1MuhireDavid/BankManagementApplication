@@ -8,7 +8,7 @@ import com.bank.models.CheckingAccount;
 import com.bank.models.Customer;
 import com.bank.models.RegularCustomer;
 import com.bank.models.SavingsAccount;
-import com.bank.services.AccountManager;
+import com.bank.services.AccountService;
 import com.bank.utils.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,13 +17,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ExceptionTest {
 
-    private AccountManager manager;
+    private AccountService manager;
     private Customer regularCustomer;
     private IdGenerator genAccount;
 
     @BeforeEach
     void setUp() {
-        manager = new AccountManager();
+        manager = new AccountService();
         genAccount = new IdGenerator("ACC");
         IdGenerator genCustomer = new IdGenerator("CUS");
         regularCustomer = new RegularCustomer("John Doe", 30, "123", "Address", genCustomer);

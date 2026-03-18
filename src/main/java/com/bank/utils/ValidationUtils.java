@@ -1,7 +1,7 @@
 package com.bank.utils;
 
 import com.bank.models.Account;
-import com.bank.services.AccountManager;
+import com.bank.services.AccountService;
 
 import java.util.Scanner;
 
@@ -10,43 +10,6 @@ import java.util.Scanner;
  */
 public class ValidationUtils {
     static Scanner input = new Scanner(System.in);
-    static private final AccountManager accountManager = new AccountManager();
-
-    /**
-     * Validates that a customer name is purely alphabetical and not blank.
-     * @param name The name to validate.
-     * @return true if valid, false otherwise.
-     */
-    public static boolean isValidName(String name) {
-        return name != null && !name.isBlank() && name.matches("[a-zA-Z ]+");
-    }
-
-    /**
-     * Validates that an age is within realistic bounds (1-150).
-     * @param age The age to validate.
-     * @return true if valid, false otherwise.
-     */
-    public static boolean isValidAge(int age) {
-        return age > 0 && age <= 150;
-    }
-
-    /**
-     * Validates that an amount is strictly positive.
-     * @param amount The amount to validate.
-     * @return true if valid, false otherwise.
-     */
-    public static boolean readAmount(double amount) {
-        return amount > 0;
-    }
-
-    /**
-     * Checks if a string value is not blank.
-     * @param value The value to check.
-     * @return true if value has printable characters, false otherwise.
-     */
-    public static boolean isNotBlank(String value) {
-        return value != null && !value.isBlank();
-    }
 
     /**
      * Prompts the user continuously until a valid integer is provided.
@@ -90,7 +53,7 @@ public class ValidationUtils {
      * @param prompt The message to display.
      * @return The read double.
      */
-    public static double readDouble(String prompt) {
+    public static double readAmount(String prompt) {
         while (true) {
             System.out.print(prompt);
             try {
@@ -135,15 +98,16 @@ public class ValidationUtils {
         }
     }
 
-/**
-* Prompts the user continuously until a valid alphabetic customer name is provided.
-* @return The read proper account number.
-* */
-    public static Account readAccountNumber() {
+    /**
+     * Prompts the user continuously until a valid account number is provided.
+     * @param manager The AccountManager to search in.
+     * @return The read proper account number.
+     * */
+    public static Account readAccountNumber(AccountService manager) {
         while (true) {
             try {
                 String accNumber = readString("Enter Account Number: ").toUpperCase();
-                Account acc = accountManager.findAccount(accNumber);
+                Account acc = manager.findAccount(accNumber);
                 if (acc == null)
                     throw new com.bank.exception.InvalidAccountException("❌Error: Account not found. Please try again.");
                 return acc;

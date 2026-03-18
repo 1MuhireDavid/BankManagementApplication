@@ -8,19 +8,17 @@ import com.bank.models.PremiumCustomer;
 import com.bank.models.RegularCustomer;
 import com.bank.utils.IdGenerator;
 
-import java.text.DecimalFormat;
-
 /**
  * Manages the collection of bank accounts.
  * Provides functionality to add, find, and view accounts, as well as update customer details.
  */
-public class AccountManager {
+public class AccountService {
     private final Account[] accounts;
     private int accountCount;
     IdGenerator accountGen = new IdGenerator("ACC");
     IdGenerator customerGen = new IdGenerator("CUS");
 
-    public AccountManager() {
+    public AccountService() {
         this.accountCount = 0;
         this.accounts = new Account[50];
         seedData();
@@ -62,6 +60,25 @@ public class AccountManager {
             }
         }
         return null;
+    }
+
+    /**
+     * Deletes an account from the manager by its exact account number.
+     * @param accountNumber The unique account identifier.
+     * @return true if deleted successfully, false if not found.
+     */
+    public boolean deleteAccount(String accountNumber) {
+        for (int i = 0; i < accountCount; i++) {
+            if (accounts[i].getAccountNumber().equals(accountNumber)) {
+                for (int j = i; j < accountCount - 1; j++) {
+                    accounts[j] = accounts[j + 1];
+                }
+                accounts[accountCount - 1] = null;
+                accountCount--;
+                return true;
+            }
+        }
+        return false;
     }
 
 

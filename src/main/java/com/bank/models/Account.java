@@ -35,12 +35,20 @@ public abstract class Account implements Transactable {
 
     public void withdraw(double amount) {
         if (amount <= 0) {
-            throw new InvalidAmountException("❌Error: Withdrawal amount must be positive.");
+            throw new InvalidAmountException("Withdrawal amount must be positive.");
         }
         if (amount > balance) {
-            throw new InsufficientFundsException("❌Error :Insufficient funds.");
+            throw new InsufficientFundsException("Insufficient funds.");
         }
         balance -= amount;
+    }
+
+    public void transfer(Account targetAccount, double amount) {
+        if (targetAccount == null) {
+            throw new IllegalArgumentException("Target account cannot be null.");
+        }
+        this.withdraw(amount);
+        targetAccount.deposit(amount);
     }
 
     @Override

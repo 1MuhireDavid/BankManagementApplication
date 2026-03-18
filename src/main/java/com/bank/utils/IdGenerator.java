@@ -1,7 +1,7 @@
 package com.bank.utils;
 
 public class IdGenerator {
-    private int counter = 0;
+    private int counter = 1;
     private final String prefix;
 
     public IdGenerator(String prefix) {

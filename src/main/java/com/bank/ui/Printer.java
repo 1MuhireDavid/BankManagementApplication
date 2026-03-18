@@ -12,6 +12,23 @@ import java.util.List;
  * Handles all display logic for the application to enforce the Single Responsibility Principle.
  */
 public class Printer {
+    public static void printMenu() {
+        System.out.println("\nMain Menu:");
+        System.out.println("-".repeat(20));
+        System.out.println("1. Manage Accounts (CRUD)");
+        System.out.println("2. Perform Transaction");
+        System.out.println("3. Generate Account Statements");
+        System.out.println("4. Exit");
+    }
+    public static void printAccountMenu() {
+        System.out.println("\nAccount Management Sub-Menu:");
+        System.out.println("-".repeat(20));
+        System.out.println("1. Create New Account");
+        System.out.println("2. View All Accounts");
+        System.out.println("3. Update Account Details");
+        System.out.println("4. Delete Account");
+        System.out.println("5. Back to Main Menu");
+    }
 
     public static void printAccountAdded(Account account) {
         System.out.println("✔️ Account added successfully!");
@@ -22,6 +39,10 @@ public class Printer {
         System.out.println("Initial Balance: $" + String.format("%.2f", account.getBalance()));
         System.out.println(account.getAccountSummaryLine());
         System.out.println("Status: " + account.getStatus());
+    }
+
+    public static void printAccountDeletedSuccess(String accountNumber) {
+        System.out.println("✔️ Account " + accountNumber + " deleted successfully!");
     }
 
     public static void printAllAccounts(Account[] accounts, int count, double totalBalance) {

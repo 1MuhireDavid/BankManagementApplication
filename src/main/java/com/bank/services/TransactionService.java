@@ -5,11 +5,11 @@ import com.bank.models.Transaction;
 /**
  * Tracks and manages all financial transactions in the application.
  */
-public class TransactionManager {
+public class TransactionService {
     private final Transaction[] transactions;
     private int transactionCount;
 
-    public TransactionManager() {
+    public TransactionService() {
         transactions = new Transaction[200];
         transactionCount = 0;
     }
