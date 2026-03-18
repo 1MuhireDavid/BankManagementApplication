@@ -6,6 +6,8 @@ import com.bank.models.SavingsAccount;
 import com.bank.models.Customer;
 import com.bank.models.PremiumCustomer;
 import com.bank.models.RegularCustomer;
+import com.bank.utils.IdGenerator;
+
 import java.text.DecimalFormat;
 
 /**
@@ -15,6 +17,8 @@ import java.text.DecimalFormat;
 public class AccountManager {
     private final Account[] accounts;
     private int accountCount;
+    IdGenerator accountGen = new IdGenerator("ACC");
+    IdGenerator customerGen = new IdGenerator("CUS");
 
     public AccountManager() {
         this.accountCount = 0;
@@ -114,10 +118,10 @@ public class AccountManager {
     }
 
     private void seedData() {
-        insert(new SavingsAccount(new RegularCustomer("Kwizera James", 34, "0788320831", "KK 143 St"), 1500.00));
-        insert(new SavingsAccount(new PremiumCustomer("Mugabo Denis", 45, "0733320831", "Nyagatare"), 5000.00));
-        insert(new SavingsAccount(new RegularCustomer("Hirwa Jesse", 28, "0799320831", "Bugesera"), 800.00));
-        insert(new CheckingAccount(new PremiumCustomer("Igabe Rich", 52, "0784220831", "Gasabo"), 500.00));
-        insert(new CheckingAccount(new RegularCustomer("Agaba James", 39, "0723320831", "KK 123 St"), 1200.00));
+        insert(new SavingsAccount(new RegularCustomer("Kwizera James", 34, "0788320831", "KK 143 St", customerGen), 1500.00, accountGen));
+        insert(new SavingsAccount(new PremiumCustomer("Mugabo Denis", 45, "0733320831", "Nyagatare", customerGen), 5000.00, accountGen));
+        insert(new SavingsAccount(new RegularCustomer("Hirwa Jesse", 28, "0799320831", "Bugesera", customerGen), 800.00,accountGen));
+        insert(new CheckingAccount(new PremiumCustomer("Igabe Rich", 52, "0784220831", "Gasabo", customerGen), 500.00,accountGen));
+        insert(new CheckingAccount(new RegularCustomer("Agaba James", 39, "0723320831", "KK 123 St", customerGen), 1200.00,accountGen));
     }
 }

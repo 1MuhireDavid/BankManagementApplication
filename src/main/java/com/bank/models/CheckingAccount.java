@@ -2,6 +2,7 @@ package com.bank.models;
 
 import com.bank.exception.InvalidAmountException;
 import com.bank.exception.OverdraftExceededException;
+import com.bank.utils.IdGenerator;
 
 public class CheckingAccount extends Account {
     private static final double DEFAULT_OVERDRAFT_LIMIT = 1000.0;
@@ -10,8 +11,8 @@ public class CheckingAccount extends Account {
     private double overdraftLimit;
     private double monthlyFee;
 
-    public CheckingAccount(Customer customer, double initialBalance) {
-        super(customer, initialBalance);
+    public CheckingAccount(Customer customer, double initialBalance, IdGenerator generator) {
+        super(customer, initialBalance, generator);
         this.monthlyFee = DEFAULT_MONTHLY_FEE;
         this.overdraftLimit = DEFAULT_OVERDRAFT_LIMIT;
     }
@@ -23,6 +24,7 @@ public class CheckingAccount extends Account {
         System.out.println("Customer:        " + getCustomer().getName());
         System.out.println("Balance:         $" + String.format("%.2f", getBalance()));
         System.out.println("Overdraft Limit: $" + String.format("%.2f", overdraftLimit));
+
         if (getCustomer() instanceof PremiumCustomer) {
             System.out.println("  Monthly Fee:    $0.00 (WAIVED - PREMIUM)");
         } else {

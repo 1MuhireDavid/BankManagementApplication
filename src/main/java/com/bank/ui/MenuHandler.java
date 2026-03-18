@@ -9,7 +9,9 @@ import com.bank.models.RegularCustomer;
 import com.bank.services.TransactionManager;
 import com.bank.models.Transaction;
 import com.bank.services.AccountManager;
+import com.bank.utils.IdGenerator;
 
+import java.time.Clock;
 import java.util.Scanner;
 
 import static com.bank.utils.ValidationUtils.*;
@@ -18,6 +20,10 @@ public class MenuHandler {
 
     private final AccountManager accountManager = new AccountManager();
     private final TransactionManager transactionManager = new TransactionManager();
+    IdGenerator accountGen = new IdGenerator("ACC");
+    IdGenerator customerGen = new IdGenerator("CUS");
+    IdGenerator transactionGen = new IdGenerator("TRN");
+
     Scanner input = new Scanner(System.in);
     public void start() {
         System.out.println("-".repeat(50));
@@ -153,12 +159,12 @@ public class MenuHandler {
         double deposit = readDouble("\nEnter initial deposit amount: $");
 
         Customer newCustomer = (customerType == 1)
-                ? new RegularCustomer(name, age, contact, address)
-                : new PremiumCustomer(name, age, contact, address);
+                ? new RegularCustomer(name, age, contact, address, customerGen)
+                : new PremiumCustomer(name, age, contact, address, customerGen);
 
         Account newAccount = (accountType == 1)
-                ? new SavingsAccount(newCustomer, deposit)
-                : new CheckingAccount(newCustomer, deposit);
+                ? new SavingsAccount(newCustomer, deposit, accountGen)
+                : new CheckingAccount(newCustomer, deposit, accountGen);
 
         if (accountManager.addAccount(newAccount)) {
             Printer.printAccountAdded(newAccount);
@@ -200,7 +206,8 @@ public class MenuHandler {
         double previewBalance = transType.equals("Deposit")
                 ? acc.getBalance() + amount
                 : acc.getBalance() - amount;
-        Transaction preview = new Transaction(acc.getAccountNumber(), transType, amount, previewBalance);
+        Clock clock = Clock.systemDefaultZone();
+        Transaction preview = new Transaction(acc.getAccountNumber(), transType, amount, previewBalance, transactionGen, clock);
         preview.displayTransactionDetails();
 
         String confirm = readString("Confirm transaction? (Y/N): ").toUpperCase();

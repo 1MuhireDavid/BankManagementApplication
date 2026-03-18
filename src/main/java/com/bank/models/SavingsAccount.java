@@ -2,6 +2,7 @@ package com.bank.models;
 
 import com.bank.exception.InsufficientFundsException;
 import com.bank.exception.InvalidAmountException;
+import com.bank.utils.IdGenerator;
 
 import java.text.DecimalFormat;
 
@@ -15,8 +16,8 @@ public class SavingsAccount extends Account {
     public SavingsAccount() {
     }
 
-    public SavingsAccount(Customer customer, double initialBalance) {
-        super(customer, initialBalance);
+    public SavingsAccount(Customer customer, double initialBalance, IdGenerator generator) {
+        super(customer, initialBalance,generator);
         this.interestRate = DEFAULT_INTEREST_RATE;
         this.minimumBalance = DEFAULT_MINIMUM_BALANCE;
     }

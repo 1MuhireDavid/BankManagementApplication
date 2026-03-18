@@ -1,5 +1,8 @@
 package com.bank.models;
 
+import com.bank.utils.IdGenerator;
+
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -9,18 +12,15 @@ public class Transaction {
     private String type;
     private double amount;
     private double balanceAfter;
-    private String timestamp;
-    static int transactionCounter = 0;
+    private LocalDateTime timestamp;
 
-    public Transaction(String accountNumber, String type, double amount, double balanceAfter) {
-        this.transactionId = String.format("TXN%03d", ++transactionCounter);
+    public Transaction(String accountNumber, String type, double amount, double balanceAfter, IdGenerator generator, Clock clock) {
+        this.transactionId = generator.generateId();
         this.accountNumber = accountNumber;
         this.type = type;
         this.amount = amount;
         this.balanceAfter = balanceAfter;
-
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm a");
-        this.timestamp = dtf.format(LocalDateTime.now());
+        this.timestamp = LocalDateTime.now(clock);
     }
 
     public String getTransactionId() {
@@ -59,11 +59,11 @@ public class Transaction {
         this.balanceAfter = balanceAfter;
     }
 
-    public String getTimestamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
 

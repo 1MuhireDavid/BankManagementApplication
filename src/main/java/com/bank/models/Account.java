@@ -2,6 +2,7 @@ package com.bank.models;
 
 import com.bank.exception.InsufficientFundsException;
 import com.bank.exception.InvalidAmountException;
+import com.bank.utils.IdGenerator;
 
 public abstract class Account implements Transactable {
     private String accountNumber;
@@ -9,13 +10,12 @@ public abstract class Account implements Transactable {
     private double balance;
     private String status;
 
-    private static int accountCounter = 0;
 
     public Account() {
     }
 
-    public Account(Customer customer, double balance) {
-        this.accountNumber = String.format("ACC%03d", ++accountCounter);
+    public Account(Customer customer, double balance, IdGenerator generator) {
+        this.accountNumber = generator.generateId();
         this.customer = customer;
         this.balance = balance;
         this.status = "Active";
