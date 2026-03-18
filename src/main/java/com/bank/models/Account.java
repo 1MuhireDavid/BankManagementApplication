@@ -2,6 +2,7 @@ package com.bank.models;
 
 import com.bank.exception.InsufficientFundsException;
 import com.bank.exception.InvalidAmountException;
+import com.bank.utils.IdGenerator;
 
 public abstract class Account implements Transactable {
     private String accountNumber;
@@ -9,19 +10,17 @@ public abstract class Account implements Transactable {
     private double balance;
     private String status;
 
-    private static int accountCounter = 0;
 
     public Account() {
     }
 
-    public Account(Customer customer, double balance) {
-        this.accountNumber = String.format("ACC%03d", ++accountCounter);
+    public Account(Customer customer, double balance, IdGenerator generator) {
+        this.accountNumber = generator.generateId();
         this.customer = customer;
         this.balance = balance;
         this.status = "Active";
     }
 
-    public abstract void displayAccountDetails();
 
     public abstract String getAccountType();
 
@@ -29,17 +28,17 @@ public abstract class Account implements Transactable {
 
     public void deposit(double amount) {
         if (amount <= 0) {
-            throw new InvalidAmountException("Deposit amount must be positive.");
+            throw new InvalidAmountException("❌Error: Deposit amount must be positive.");
         }
         balance += amount;
     }
 
     public void withdraw(double amount) {
         if (amount <= 0) {
-            throw new InvalidAmountException("Withdrawal amount must be positive.");
+            throw new InvalidAmountException("❌Error: Withdrawal amount must be positive.");
         }
         if (amount > balance) {
-            throw new InsufficientFundsException("Insufficient funds.");
+            throw new InsufficientFundsException("❌Error :Insufficient funds.");
         }
         balance -= amount;
     }

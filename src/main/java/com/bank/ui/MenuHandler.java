@@ -9,7 +9,9 @@ import com.bank.models.RegularCustomer;
 import com.bank.services.TransactionManager;
 import com.bank.models.Transaction;
 import com.bank.services.AccountManager;
+import com.bank.utils.IdGenerator;
 
+import java.time.Clock;
 import java.util.Scanner;
 
 import static com.bank.utils.ValidationUtils.*;
@@ -18,6 +20,10 @@ public class MenuHandler {
 
     private final AccountManager accountManager = new AccountManager();
     private final TransactionManager transactionManager = new TransactionManager();
+    IdGenerator accountGen = new IdGenerator("ACC");
+    IdGenerator customerGen = new IdGenerator("CUS");
+    IdGenerator transactionGen = new IdGenerator("TRN");
+
     Scanner input = new Scanner(System.in);
     public void start() {
         System.out.println("-".repeat(50));
@@ -36,7 +42,7 @@ public class MenuHandler {
                 case 5 -> handleUpdateCustomer();
                 case 6 -> {
                     running = false;
-                    System.out.println("GoodBye!");
+                    System.out.println("\n Thank you for using the Bank Account Management System!\n All data saved in memory. Remember to commit your latest changes to Git!\n Goodbye!");
                 }
                 default -> System.out.println("Please input a valid choice (1-6).");
             }
@@ -44,28 +50,16 @@ public class MenuHandler {
     }
 
     private void printMenu() {
-        System.out.println("\n1. Create Account");
-        System.out.println("2. View Accounts");
-        System.out.println("3. Process Transaction");
-        System.out.println("4. View Transaction History");
-        System.out.println("5. Update Customer");
-        System.out.println("6. Exit");
+        System.out.println("Main Menu:");
+        System.out.println("-".repeat(20));
+        System.out.println("\n1. Manage Account");
+        System.out.println("2. Perform Transaction");
+        System.out.println("3. Generate Account Statements");
+        System.out.println("4. Update Customer");
+        System.out.println("5. Exit");
     }
 
 
-    private Account readAccount() {
-        while (true) {
-            try {
-                String accNumber = readString("Enter Account Number: ").toUpperCase();
-                Account acc = accountManager.findAccount(accNumber);
-                if (acc == null)
-                    throw new com.bank.exception.InvalidAccountException("Account not found. Please try again.");
-                return acc;
-            } catch (com.bank.exception.InvalidAccountException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-    }
 
     private void handleUpdateCustomer() {
         System.out.println("\nUPDATE CUSTOMER DETAILS");
@@ -110,7 +104,8 @@ public class MenuHandler {
 
     private void handleViewAccounts() {
         Printer.printAllAccounts(accountManager.getAccounts(), accountManager.getAccountCount(), accountManager.getTotalBalance());
-        readString("\nPress Enter to continue...");
+        System.out.println("\nPress Enter to continue...");
+        input.nextLine();
     }
 
     private void handleCreateAccount() {
@@ -153,12 +148,12 @@ public class MenuHandler {
         double deposit = readDouble("\nEnter initial deposit amount: $");
 
         Customer newCustomer = (customerType == 1)
-                ? new RegularCustomer(name, age, contact, address)
-                : new PremiumCustomer(name, age, contact, address);
+                ? new RegularCustomer(name, age, contact, address, customerGen)
+                : new PremiumCustomer(name, age, contact, address, customerGen);
 
         Account newAccount = (accountType == 1)
-                ? new SavingsAccount(newCustomer, deposit)
-                : new CheckingAccount(newCustomer, deposit);
+                ? new SavingsAccount(newCustomer, deposit, accountGen)
+                : new CheckingAccount(newCustomer, deposit, accountGen);
 
         if (accountManager.addAccount(newAccount)) {
             Printer.printAccountAdded(newAccount);
@@ -173,7 +168,7 @@ public class MenuHandler {
         System.out.println("\nPROCESS TRANSACTION");
         System.out.println("-".repeat(40));
 
-        Account acc = readAccount();
+        Account acc = readAccountNumber();
 
         System.out.println("\nAccount Details:");
         System.out.println("Customer:  " + acc.getCustomer().getName());
@@ -183,25 +178,18 @@ public class MenuHandler {
         System.out.println("\nTransaction type:");
         System.out.println("1. Deposit");
         System.out.println("2. Withdrawal");
-        int transTypeNum = readInt("Select type (1-2): ");
-        if (transTypeNum < 1 || transTypeNum > 2) {
-            System.out.println("Invalid transaction type.");
-            return;
-        }
+        int transTypeNum = readTypeNum();
 
         double amount = readDouble("Enter amount: $");
-        if (amount <= 0) {
-            System.out.println("Amount must be greater than zero.");
-            return;
-        }
 
         String transType = (transTypeNum == 1) ? "Deposit" : "Withdrawal";
 
         double previewBalance = transType.equals("Deposit")
                 ? acc.getBalance() + amount
                 : acc.getBalance() - amount;
-        Transaction preview = new Transaction(acc.getAccountNumber(), transType, amount, previewBalance);
-        preview.displayTransactionDetails();
+        Clock clock = Clock.systemDefaultZone();
+        Transaction preview = new Transaction(acc.getAccountNumber(), transType, amount, previewBalance, transactionGen, clock);
+        Printer.printTransactionDetails(preview);
 
         String confirm = readString("Confirm transaction? (Y/N): ").toUpperCase();
 
@@ -229,10 +217,10 @@ public class MenuHandler {
     }
 
     private void handleTransViewHistory() {
-        System.out.println("\nVIEW TRANSACTION HISTORY");
+        System.out.println("\nGENERATE ACCOUNT STATEMENT");
         System.out.println("-".repeat(40));
 
-        Account acc = readAccount();
+        Account acc = readAccountNumber();
         System.out.println("Account: " + acc.getAccountNumber() + " - " + acc.getCustomer().getName());
         System.out.println("Account Type: " + acc.getAccountType());
         System.out.printf("Current Balance: $%.2f%n", acc.getBalance());

@@ -2,6 +2,7 @@ package com.bank.models;
 
 import com.bank.exception.InsufficientFundsException;
 import com.bank.exception.InvalidAmountException;
+import com.bank.utils.IdGenerator;
 
 import java.text.DecimalFormat;
 
@@ -15,8 +16,8 @@ public class SavingsAccount extends Account {
     public SavingsAccount() {
     }
 
-    public SavingsAccount(Customer customer, double initialBalance) {
-        super(customer, initialBalance);
+    public SavingsAccount(Customer customer, double initialBalance, IdGenerator generator) {
+        super(customer, initialBalance,generator);
         this.interestRate = DEFAULT_INTEREST_RATE;
         this.minimumBalance = DEFAULT_MINIMUM_BALANCE;
     }
@@ -37,30 +38,18 @@ public class SavingsAccount extends Account {
     @Override
     public void withdraw(double amount) {
         if (amount <= 0) {
-            throw new InvalidAmountException("Withdrawal amount must be positive.");
+            throw new InvalidAmountException("❌Error: Withdrawal amount must be positive.");
         }
         if (amount > getBalance()) {
-            throw new InsufficientFundsException("Insufficient funds.");
+            throw new InsufficientFundsException("❌Error: Insufficient funds.");
         }
         if (getBalance() - amount < minimumBalance) {
             throw new InsufficientFundsException(
-                    String.format("Balance cannot go below minimum $%.2f", minimumBalance));
+                    String.format("❌Error: Balance cannot go below minimum $%.2f", minimumBalance));
         }
         setBalance(getBalance() - amount);
     }
 
-    @Override
-    public void displayAccountDetails() {
-        DecimalFormat df = new DecimalFormat("#.##");
-        System.out.println();
-        System.out.println("Account :       " + getAccountNumber());
-        System.out.println("Customer:        " + getCustomer().getName());
-        System.out.println("Account Type:     Savings");
-        System.out.println("Balance:         $" + String.format("%.2f", getBalance()));
-        System.out.println("Status:           " + getStatus());
-        System.out.println("Interest Rate:    " + df.format(this.interestRate * 100) + "%");
-        System.out.println("Min Balance:   " + String.format("%.2f", minimumBalance));
-    }
 
     @Override
     public String getAccountSummaryLine() {
@@ -69,8 +58,6 @@ public class SavingsAccount extends Account {
     }
 
     public double calculateInterest() {
-        double interest = getBalance() * interestRate;
-        System.out.println("Interest earned: $" + String.format("%.2f", interest));
-        return interest;
+        return getBalance() * interestRate;
     }
 }

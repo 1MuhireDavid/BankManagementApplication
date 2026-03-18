@@ -1,5 +1,8 @@
 package com.bank.utils;
 
+import com.bank.models.Account;
+import com.bank.services.AccountManager;
+
 import java.util.Scanner;
 
 /**
@@ -7,6 +10,7 @@ import java.util.Scanner;
  */
 public class ValidationUtils {
     static Scanner input = new Scanner(System.in);
+    static private final AccountManager accountManager = new AccountManager();
 
     /**
      * Validates that a customer name is purely alphabetical and not blank.
@@ -31,7 +35,7 @@ public class ValidationUtils {
      * @param amount The amount to validate.
      * @return true if valid, false otherwise.
      */
-    public static boolean isValidAmount(double amount) {
+    public static boolean readAmount(double amount) {
         return amount > 0;
     }
 
@@ -59,6 +63,27 @@ public class ValidationUtils {
             }
         }
     }
+    /**
+     * Prompts the user continuously until a valid integer is provided.
+     * @return The read integer.
+     */
+    public static int readTypeNum() {
+        while (true) {
+            System.out.print("Select type (1-2): ");
+            try {
+                int choice = Integer.parseInt(input.nextLine().trim());
+
+                // Validate the range
+                if (choice >= 1 && choice <= 2) {
+                    return choice;
+                } else {
+                    System.out.println("Invalid selection. Please enter 1 or 2.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid number.");
+            }
+        }
+    }
 
     /**
      * Prompts the user continuously until a valid, non-negative double is provided.
@@ -71,12 +96,12 @@ public class ValidationUtils {
             try {
                 double val = Double.parseDouble(input.nextLine().trim());
                 if (val < 0) {
-                    System.out.println("Amount cannot be negative.");
+                    System.out.println("❌Error :Amount cannot be negative.");
                     continue;
                 }
                 return val;
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
+                System.out.println("❌Error :Invalid input. Please enter a valid number.");
             }
         }
     }
@@ -107,6 +132,24 @@ public class ValidationUtils {
             if (!value.isEmpty() && value.matches("[a-zA-Z ]+"))
                 return value;
             System.out.println("Invalid name. Please enter a valid name with only letters.");
+        }
+    }
+
+/**
+* Prompts the user continuously until a valid alphabetic customer name is provided.
+* @return The read proper account number.
+* */
+    public static Account readAccountNumber() {
+        while (true) {
+            try {
+                String accNumber = readString("Enter Account Number: ").toUpperCase();
+                Account acc = accountManager.findAccount(accNumber);
+                if (acc == null)
+                    throw new com.bank.exception.InvalidAccountException("❌Error: Account not found. Please try again.");
+                return acc;
+            } catch (com.bank.exception.InvalidAccountException e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 

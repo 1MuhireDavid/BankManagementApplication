@@ -4,6 +4,10 @@ import com.bank.models.Account;
 import com.bank.models.Customer;
 import com.bank.models.Transaction;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 /**
  * Handles all display logic for the application to enforce the Single Responsibility Principle.
  */
@@ -60,40 +64,64 @@ public class Printer {
     }
 
     public static void printTransactionHistory(String accountNumber, Transaction[] transactions, int count) {
-        boolean hasTransactions = false;
+        List<Transaction> filtered = new ArrayList<>();
         double totalDeposits = 0;
         double totalWithdrawals = 0;
-        
-        System.out.println("\nTRANSACTION HISTORY FOR ACCOUNT: " + accountNumber);
-        System.out.println("-".repeat(73));
-        System.out.printf("%-20s | %-15s | %-12s | %-12s%n", "DATE", "TYPE", "AMOUNT", "BALANCE");
-        System.out.println("-".repeat(73));
 
-        for (int i = 0; i < count; i++) {
-            Transaction t = transactions[i];
-            if (t.getAccountNumber().equals(accountNumber)) {
-                hasTransactions = true;
-                System.out.printf("%-20s | %-15s | $%,-11.2f | $%,-11.2f%n", 
-                    t.getTimestamp(),
-                    t.getType(),
-                    t.getAmount(),
-                    t.getBalanceAfter());
-                
-                if (t.getType().equalsIgnoreCase("Deposit")) {
-                    totalDeposits += t.getAmount();
-                } else if (t.getType().equalsIgnoreCase("Withdrawal")) {
-                    totalWithdrawals += t.getAmount();
-                }
+        for(int i = 0; i < count; i++){
+            Transaction transaction = transactions[i];
+            if(transaction.getAccountNumber().equals(accountNumber)){
+                filtered.add(transaction);
             }
         }
+        if(filtered.isEmpty()){
+            System.out.println("\n No transactions found for this account.");
+            return;
+        }
 
-        if (!hasTransactions) {
-            System.out.println("No transactions found for this account.");
-        } else {
+        filtered.sort(Comparator.comparing(Transaction::getTimestamp).reversed());
+
+        System.out.println("\nTRANSACTION HISTORY FOR ACCOUNT: " + accountNumber);
+        System.out.println("-".repeat(73));
+        System.out.printf("%-15s | %-20s | %-15s | %-12s | %-12s%n", "TXN ID", "DATE", "TYPE", "AMOUNT", "BALANCE");
+        System.out.println("-".repeat(73));
+
+
+        for (Transaction transaction : filtered) {
+                System.out.printf("%-15s | %-20s | %-15s | $%,-11.2f | $%,-11.2f%n",
+                    transaction.getTransactionId(),
+                    transaction.getFormattedTimestamp(),
+                    transaction.getType(),
+                    transaction.getAmount(),
+                    transaction.getBalanceAfter());
+                if (transaction.getType().equalsIgnoreCase("Deposit")) {
+                    totalDeposits += transaction.getAmount();
+                } else if (transaction.getType().equalsIgnoreCase("Withdrawal")) {
+                    totalWithdrawals += transaction.getAmount();
+                }
+        }
+
             System.out.println("-".repeat(73));
             System.out.printf("Total Deposits:    $%,.2f%n", totalDeposits);
             System.out.printf("Total Withdrawals: $%,.2f%n", totalWithdrawals);
-        }
-        System.out.println("-".repeat(73));
+            System.out.println("-".repeat(73));
+    }
+
+    public static void printTransactionDetails(Transaction transaction) {
+        double previousBalance = transaction.getType().equalsIgnoreCase("Deposit")
+                ? transaction.getBalanceAfter() - transaction.getAmount()
+                : transaction.getBalanceAfter() + transaction.getAmount();
+
+        String line = "-".repeat(44);
+        System.out.println("\nTRANSACTION CONFIRMATION");
+        System.out.println(line);
+        System.out.printf("  %-20s: %s%n", "Transaction ID", transaction.getTransactionId());
+        System.out.printf("  %-20s: %s%n", "Account", transaction.getAccountNumber());
+        System.out.printf("  %-20s: %s%n", "Type", transaction.getType().toUpperCase());
+        System.out.printf("  %-20s: $%,.2f%n", "Amount", transaction.getAmount());
+        System.out.printf("  %-20s: $%,.2f%n", "Previous Balance", previousBalance);
+        System.out.printf("  %-20s: $%,.2f%n", "New Balance", transaction.getBalanceAfter());
+        System.out.printf("  %-20s: %s%n", "Date/Time", transaction.getTimestamp());
+        System.out.println(line);
     }
 }
