@@ -8,7 +8,6 @@ import com.bank.models.CheckingAccount;
 import com.bank.models.Customer;
 import com.bank.models.RegularCustomer;
 import com.bank.models.SavingsAccount;
-import com.bank.services.AccountService;
 import com.bank.utils.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,55 +15,48 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ExceptionTest {
-
-    private AccountService manager;
-    private Customer regularCustomer;
+    private IdGenerator genCustomer;
     private IdGenerator genAccount;
 
     @BeforeEach
     void setUp() {
-        manager = new AccountService();
+        genCustomer = new IdGenerator("CUS");
         genAccount = new IdGenerator("ACC");
-        IdGenerator genCustomer = new IdGenerator("CUS");
-        regularCustomer = new RegularCustomer("John Doe", 30, "123", "Address", genCustomer);
     }
-
     @Test
     void testInsufficientFundsException() {
-        SavingsAccount acc = new SavingsAccount(regularCustomer, 500, genAccount);
-
-        InsufficientFundsException ex = assertThrows(
-                InsufficientFundsException.class,
-                () -> acc.withdraw(1000)
-        );
-
-        assertEquals("❌Error: Insufficient funds.", ex.getMessage());
+        Customer customer = new RegularCustomer("Test", 20, "123", "Addr", genCustomer);
+        SavingsAccount acc = new SavingsAccount(customer, 500, genAccount);
+        
+        Exception exception = assertThrows(InsufficientFundsException.class, () -> {
+            acc.withdraw(1000); // 1000 > 500
+        });
+        
+        assertEquals("❌Error: Insufficient funds.", exception.getMessage());
     }
 
     @Test
     void testInvalidAmountException() {
-        SavingsAccount acc = new SavingsAccount(regularCustomer, 500, genAccount);
-
-        assertThrows(
-                InvalidAmountException.class,
-                () -> acc.deposit(-100)
-        );
+        Customer customer = new RegularCustomer("Test", 20, "123", "Addr", genCustomer);
+        SavingsAccount acc = new SavingsAccount(customer, 500, genAccount);
+        
+        assertThrows(InvalidAmountException.class, () -> {
+            acc.deposit(-100);
+        });
     }
 
     @Test
     void testOverdraftExceededException() {
-        CheckingAccount acc = new CheckingAccount(regularCustomer, 500, genAccount);
-
-        assertThrows(
-                OverdraftExceededException.class,
-                () -> acc.withdraw(2000)
-        );
+        Customer customer = new RegularCustomer("Test", 20, "123", "Addr", genCustomer);
+        CheckingAccount acc = new CheckingAccount(customer, 500, genAccount);
+        assertThrows(OverdraftExceededException.class, () -> {
+            acc.withdraw(2000); // 2000 > 1500
+        });
     }
 
     @Test
     void testInvalidAccountException() {
-        InvalidAccountException ex = new InvalidAccountException("❌Error: Not found");
-
-        assertEquals("❌Error: Not found", ex.getMessage());
+        InvalidAccountException ex = new InvalidAccountException("Not found");
+        assertEquals("Not found", ex.getMessage());
     }
 }
