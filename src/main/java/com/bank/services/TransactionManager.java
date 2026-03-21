@@ -1,17 +1,17 @@
 package com.bank.services;
 
 import com.bank.models.Transaction;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Tracks and manages all financial transactions in the application.
  */
 public class TransactionManager {
-    private final Transaction[] transactions;
-    private int transactionCount;
+    private final List<Transaction> transactions;
 
     public TransactionManager() {
-        transactions = new Transaction[200];
-        transactionCount = 0;
+        transactions = new ArrayList<>();
     }
 
     /**
@@ -20,26 +20,20 @@ public class TransactionManager {
      * @return true if added, false if out of space.
      */
     public boolean addTransaction(Transaction transaction) {
-        if (transactionCount < transactions.length) {
-            transactions[transactionCount] = transaction;
-            transactionCount++;
-            return true;
-        }
-        return false;
+        transactions.add(transaction);
+        return true;
     }
 
     /**
-     * Returns the array of logged transactions.
-     * @return Full array of transactions.
+     * Returns the list of logged transactions.
+     * @return List of transactions.
      */
-    public Transaction[] getTransactions() {
+    public List<Transaction> getTransactions() {
         return transactions;
     }
 
-
-
     public int getTransactionCount() {
-        return transactionCount;
+        return transactions.size();
     }
 
 }

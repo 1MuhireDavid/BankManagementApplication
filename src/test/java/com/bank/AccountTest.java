@@ -4,6 +4,7 @@ import com.bank.models.Customer;
 import com.bank.models.RegularCustomer;
 import com.bank.models.SavingsAccount;
 import com.bank.services.AccountManager;
+import com.bank.utils.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,11 +14,13 @@ public class AccountTest {
 
     private AccountManager manager;
     private Customer regularCustomer;
+    private final IdGenerator accountGen = new IdGenerator("ACC");
+    private final IdGenerator customerGen = new IdGenerator("CUS");
 
     @BeforeEach
     void setUp() {
         manager = new AccountManager();
-        regularCustomer = new RegularCustomer("John Doe", 30, "123", "Address");
+        regularCustomer = new RegularCustomer("John Doe", 30, "123", "Address", customerGen);
     }
 
     @Test
@@ -29,14 +32,14 @@ public class AccountTest {
 
     @Test
     void testProcessTransactionDeposit() {
-        SavingsAccount acc = new SavingsAccount(regularCustomer, 1000);
+        SavingsAccount acc = new SavingsAccount(regularCustomer, 1000, accountGen);
         assertTrue(acc.processTransaction(500, "Deposit"));
         assertEquals(1500, acc.getBalance());
     }
 
     @Test
     void testProcessTransactionWithdrawal() {
-        SavingsAccount acc = new SavingsAccount(regularCustomer, 1000);
+        SavingsAccount acc = new SavingsAccount(regularCustomer, 1000, accountGen);
         assertTrue(acc.processTransaction(500, "Withdrawal"));
         assertEquals(500, acc.getBalance());
     }

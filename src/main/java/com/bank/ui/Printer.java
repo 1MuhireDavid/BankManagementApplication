@@ -4,6 +4,9 @@ import com.bank.models.Account;
 import com.bank.models.Customer;
 import com.bank.models.Transaction;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * Handles all display logic for the application to enforce the Single Responsibility Principle.
  */
@@ -20,7 +23,7 @@ public class Printer {
         System.out.println("Status: " + account.getStatus());
     }
 
-    public static void printAllAccounts(Account[] accounts, int count, double totalBalance) {
+    public static void printAllAccounts(Collection<Account> accounts, int count, double totalBalance) {
         if (count == 0) {
             System.out.println("No accounts available.");
             return;
@@ -33,8 +36,7 @@ public class Printer {
                 "ACC NO", "CUSTOMER NAME", "TYPE", "BALANCE", "STATUS");
         System.out.println(line);
 
-        for (int i = 0; i < count; i++) {
-            Account acc = accounts[i];
+        for (Account acc : accounts) {
             System.out.printf("%-8s | %-18s | %-10s | $%-11s | %-8s%n",
                     acc.getAccountNumber(),
                     acc.getCustomer().getName(),
@@ -59,7 +61,7 @@ public class Printer {
         System.out.println("Address:  " + customer.getAddress());
     }
 
-    public static void printTransactionHistory(String accountNumber, Transaction[] transactions, int count) {
+    public static void printTransactionHistory(String accountNumber, List<Transaction> transactions, int count) {
         boolean hasTransactions = false;
         double totalDeposits = 0;
         double totalWithdrawals = 0;
@@ -69,8 +71,7 @@ public class Printer {
         System.out.printf("%-20s | %-15s | %-12s | %-12s%n", "DATE", "TYPE", "AMOUNT", "BALANCE");
         System.out.println("-".repeat(73));
 
-        for (int i = 0; i < count; i++) {
-            Transaction t = transactions[i];
+        for (Transaction t : transactions) {
             if (t.getAccountNumber().equals(accountNumber)) {
                 hasTransactions = true;
                 System.out.printf("%-20s | %-15s | $%,-11.2f | $%,-11.2f%n", 

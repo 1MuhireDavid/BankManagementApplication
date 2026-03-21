@@ -8,45 +8,43 @@ import com.bank.models.PremiumCustomer;
 import com.bank.models.RegularCustomer;
 import com.bank.utils.IdGenerator;
 
-import java.text.DecimalFormat;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Manages the collection of bank accounts.
  * Provides functionality to add, find, and view accounts, as well as update customer details.
  */
 public class AccountManager {
-    private final Account[] accounts;
-    private int accountCount;
+    private final Map<String, Account> accounts;
     IdGenerator accountGen = new IdGenerator("ACC");
     IdGenerator customerGen = new IdGenerator("CUS");
 
     public AccountManager() {
-        this.accountCount = 0;
-        this.accounts = new Account[50];
+        this.accounts = new HashMap<>();
         seedData();
     }
 
     /**
      * Adds a new account to the manager.
-     * Validates capacity before adding and prints a summary.
      * @param account The account to add.
-     * @return true if added, false if full.
+     * @return true if added, false if it already exists.
      */
     public boolean addAccount(Account account) {
-        if (accountCount < accounts.length) {
-            accounts[accountCount] = account;
-            accountCount++;
-            return true;
+        if (accounts.containsKey(account.getAccountNumber())) {
+            return false;
         }
-        return false;
+        accounts.put(account.getAccountNumber(), account);
+        return true;
     }
 
     /**
-     * Returns the array of registered accounts.
-     * @return Full array of accounts.
+     * Returns the collection of registered accounts.
+     * @return Collection of accounts.
      */
-    public Account[] getAccounts() {
-        return accounts;
+    public Collection<Account> getAccounts() {
+        return accounts.values();
     }
 
     /**
@@ -55,15 +53,8 @@ public class AccountManager {
      * @return The matching Account object, or null if not found.
      */
     public Account findAccount(String accountNumber) {
-
-        for (int i = 0; i < accountCount; i++) {
-            if (accounts[i].getAccountNumber().equals(accountNumber)) {
-                return accounts[i];
-            }
-        }
-        return null;
+        return accounts.get(accountNumber);
     }
-
 
     /**
      * Calculates the total balance across all managed accounts.
@@ -71,14 +62,14 @@ public class AccountManager {
      */
     public double getTotalBalance() {
         double totalBalance = 0.0;
-        for (int i = 0; i < accountCount; i++) {
-            totalBalance += accounts[i].getBalance();
+        for (Account account : accounts.values()) {
+            totalBalance += account.getBalance();
         }
         return totalBalance;
     }
 
     public int getAccountCount() {
-        return accountCount;
+        return accounts.size();
     }
 
     /**
@@ -112,9 +103,7 @@ public class AccountManager {
     }
 
     private void insert(Account account) {
-        if (accountCount < accounts.length) {
-            accounts[accountCount++] = account;
-        }
+        accounts.put(account.getAccountNumber(), account);
     }
 
     private void seedData() {
