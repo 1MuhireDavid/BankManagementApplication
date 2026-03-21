@@ -23,35 +23,27 @@ The system allows users to create and manage bank accounts, perform financial tr
 
 ## Project Structure
 
-```
+```text
 BankAccountManagement/
-├── src/com/bank
-│   ├── account
-│   │   ├── Account.java
-│   │   ├── CheckingAccount.java
-│   │   ├── SavingsAccount.java
-│   │
-│   ├── customer
-│   │   ├── Customer.java
-│   │   ├── PremiumCustomer.java
-│   │   ├── RegularCustomer.java
-│   │
-│   ├── management
-│   │   ├── AccountManager.java
-│   │   ├── TransactionManager.java
-│   │
-│   ├── transaction
-│   │   ├── Transactable.java
-│   │   ├── Transaction.java
-│   │
-│   ├── ui
-│   │   ├── MenuHandler.java
-│   │
-│   └── Main.java
-│
+├── src/
+│   ├── main/java/com/bank
+│   │   ├── account/
+│   │   ├── customer/
+│   │   ├── management/
+│   │   ├── transaction/
+│   │   ├── ui/
+│   │   └── Main.java
+│   └── test/java/com/bank
+│       └── (tests)
+├── docs/
+│   └── git-workflow.md
+├── pom.xml
 ├── README.md
 └── .gitignore
 ```
+
+> [!NOTE]
+> For our contributor guidelines and Git best practices, please refer to our [Git Workflow Document](docs/git-workflow.md).
 
 ---
 
@@ -107,26 +99,32 @@ BankAccountManagement/
 
 1. Clone the repository
 
-```
-git clone (https://github.com/1MuhireDavid/BankManagementApp.git)
+```bash
+git clone https://github.com/1MuhireDavid/BankManagementApp.git
 ```
 
 2. Navigate to the project folder
 
-```
+```bash
 cd BankAccountManagement
 ```
 
-3. Compile the project
+3. Build the project using Maven
 
-```
-javac src\com\bank\Main.java
+```bash
+mvn clean compile
 ```
 
 4. Run the application
 
+```bash
+mvn exec:java -Dexec.mainClass="com.bank.Main"
 ```
-java com.bank.Main
+
+5. Run unit tests
+
+```bash
+mvn test
 ```
 
 ---

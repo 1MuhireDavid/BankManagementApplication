@@ -17,7 +17,6 @@ public abstract class Customer {
         this.address = address;
     }
 
-    public abstract void displayCustomerDetails();
 
     public abstract String getCustomerType();
 

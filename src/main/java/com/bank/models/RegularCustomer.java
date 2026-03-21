@@ -13,14 +13,4 @@ public class RegularCustomer extends Customer {
         return "Regular";
     }
 
-    @Override
-    public void displayCustomerDetails() {
-        System.out.println("==== Regular Customer ====");
-        System.out.println("ID:      " + getCustomerId());
-        System.out.println("Name:  " + getName());
-        System.out.println("Age:  " + getAge());
-        System.out.println("Contact: " + getContact());
-        System.out.println("Address: " + getAddress());
-
-    }
 }
