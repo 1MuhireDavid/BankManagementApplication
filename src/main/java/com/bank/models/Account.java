@@ -21,7 +21,6 @@ public abstract class Account implements Transactable {
         this.status = "Active";
     }
 
-    public abstract void displayAccountDetails();
 
     public abstract String getAccountType();
 
@@ -29,7 +28,7 @@ public abstract class Account implements Transactable {
 
     public void deposit(double amount) {
         if (amount <= 0) {
-            throw new InvalidAmountException("Deposit amount must be positive.");
+            throw new InvalidAmountException("❌Error: Deposit amount must be positive.");
         }
         balance += amount;
     }
@@ -42,6 +41,14 @@ public abstract class Account implements Transactable {
             throw new InsufficientFundsException("Insufficient funds.");
         }
         balance -= amount;
+    }
+
+    public void transfer(Account targetAccount, double amount) {
+        if (targetAccount == null) {
+            throw new IllegalArgumentException("Target account cannot be null.");
+        }
+        this.withdraw(amount);
+        targetAccount.deposit(amount);
     }
 
     @Override

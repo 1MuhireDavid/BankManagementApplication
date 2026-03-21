@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Transaction {
     private final String transactionId;
-    private String accountNumber;
+    private final String accountNumber;
     private String type;
     private double amount;
     private double balanceAfter;
@@ -29,10 +29,6 @@ public class Transaction {
 
     public String getAccountNumber() {
         return accountNumber;
-    }
-
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
     }
 
     public String getType() {
@@ -63,25 +59,9 @@ public class Transaction {
         return timestamp;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
+    public String getFormattedTimestamp() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return timestamp.format(formatter);
     }
 
-    public void displayTransactionDetails() {
-        double previousBalance = type.equalsIgnoreCase("Deposit")
-                ? balanceAfter - amount
-                : balanceAfter + amount;
-
-        String line = "-".repeat(44);
-        System.out.println("\nTRANSACTION CONFIRMATION");
-        System.out.println(line);
-        System.out.printf("  %-20s: %s%n", "Transaction ID", transactionId);
-        System.out.printf("  %-20s: %s%n", "Account", accountNumber);
-        System.out.printf("  %-20s: %s%n", "Type", type.toUpperCase());
-        System.out.printf("  %-20s: $%,.2f%n", "Amount", amount);
-        System.out.printf("  %-20s: $%,.2f%n", "Previous Balance", previousBalance);
-        System.out.printf("  %-20s: $%,.2f%n", "New Balance", balanceAfter);
-        System.out.printf("  %-20s: %s%n", "Date/Time", timestamp);
-        System.out.println(line);
-    }
 }
