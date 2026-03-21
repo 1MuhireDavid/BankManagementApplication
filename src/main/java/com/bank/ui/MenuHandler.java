@@ -205,7 +205,8 @@ public class MenuHandler {
         } else {
             System.out.println("Account list is full.");
         }
-        readString("\nPress Enter to continue...");
+        System.out.print("\nPress Enter to continue...");
+        input.nextLine();
     }
 
     private void handleTransaction() {
@@ -271,7 +272,8 @@ public class MenuHandler {
         System.out.printf("Current Balance: $%.2f%n", acc.getBalance());
         Printer.printTransactionHistory(acc.getAccountNumber(), transactionService.getTransactions(), transactionService.getTransactionCount());
 
-        readString("\nPress Enter to continue...");
+        System.out.println("\nPress Enter to continue...");
+        input.nextLine();
     }
 
 }

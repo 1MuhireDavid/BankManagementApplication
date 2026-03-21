@@ -57,7 +57,10 @@ BankAccountManagement/
 
 ## Sample Output
 ### Screenshot 1: Main Menu
-<img width="616" height="220" alt="image" src="https://github.com/user-attachments/assets/2066612c-ca71-425d-a67d-49204a4aeffc" />
+<img width="666" height="347" alt="Screenshot 2026-03-24 103346" src="https://github.com/user-attachments/assets/d0c0a8f5-5b5e-448b-8a82-5dc22771d610" />
+
+### Screenshot 1b: Manage Account Menu
+<img width="449" height="189" alt="Screenshot 2026-03-24 103357" src="https://github.com/user-attachments/assets/3b785f4b-019d-4bde-b454-e4f009264f0c" />
 
 ### Screenshot 2: Account Creation (Savings account)
 <img width="624" height="643" alt="Screenshot 2026-03-10 154420" src="https://github.com/user-attachments/assets/0db5df6a-9eaa-4253-98ba-eaa74c178b67" />
