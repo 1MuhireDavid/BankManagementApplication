@@ -1,5 +1,6 @@
 package com.bank.utils;
 
+import com.bank.exception.InvalidAccountException;
 import com.bank.models.Account;
 import com.bank.services.AccountService;
 
@@ -40,10 +41,10 @@ public class ValidationUtils {
                 if (choice >= 1 && choice <= 2) {
                     return choice;
                 } else {
-                    System.out.println("Invalid selection. Please enter 1 or 2.");
+                    System.out.println("❌Error : Invalid selection. Please enter 1 or 2.");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
+                System.out.println("❌Error :Invalid input. Please enter a valid number.");
             }
         }
     }
@@ -59,7 +60,7 @@ public class ValidationUtils {
             try {
                 double val = Double.parseDouble(input.nextLine().trim());
                 if (val < 0) {
-                    System.out.println("❌Error :Amount cannot be negative.");
+                    System.out.println("❌Error :Invalid amount. Amount must be greater than 0.");
                     continue;
                 }
                 return val;
@@ -109,9 +110,9 @@ public class ValidationUtils {
                 String accNumber = readString("Enter Account Number: ").toUpperCase();
                 Account acc = manager.findAccount(accNumber);
                 if (acc == null)
-                    throw new com.bank.exception.InvalidAccountException("❌Error: Account not found. Please try again.");
+                    throw new InvalidAccountException("❌Error: Account not found. Please check the account number and try again.");
                 return acc;
-            } catch (com.bank.exception.InvalidAccountException e) {
+            } catch (InvalidAccountException e) {
                 System.out.println(e.getMessage());
             }
         }

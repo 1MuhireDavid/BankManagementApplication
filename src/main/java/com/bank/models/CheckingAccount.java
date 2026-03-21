@@ -32,7 +32,7 @@ public class CheckingAccount extends Account {
     @Override
     public void withdraw(double amount) {
         if (amount <= 0) {
-            throw new InvalidAmountException("❌Error :Withdrawal amount must be positive.");
+            throw new InvalidAmountException("❌Error :Invalid amount. Amount must be greater than 0.");
         }
         if (amount > getBalance() + overdraftLimit) {
             throw new OverdraftExceededException("❌Error : Exceeds overdraft limit.");

@@ -39,7 +39,8 @@ public class MenuHandler {
                 case 1 -> handleManageAccount();
                 case 2 -> handleTransaction();
                 case 3 -> handleTransViewHistory();
-                case 4 -> {
+                case 4 -> handleRunTests();
+                case 5 -> {
                     running = false;
                     System.out.println("""
                             
@@ -48,7 +49,7 @@ public class MenuHandler {
                             data saved in memory. Remember to commit your latest changes to Git!
                              Goodbye!""");
                 }
-                default -> System.out.println("Please input a valid choice (1-4).");
+                default -> System.out.println("Please input a valid choice (1-5).");
             }
         }
     }
@@ -273,6 +274,28 @@ public class MenuHandler {
         Printer.printTransactionHistory(acc.getAccountNumber(), transactionService.getTransactions(), transactionService.getTransactionCount());
 
         System.out.println("\nPress Enter to continue...");
+        input.nextLine();
+    }
+
+    private void handleRunTests() {
+        System.out.println("\nRUNNING TESTS...");
+        System.out.println("-".repeat(40));
+        try {
+            ProcessBuilder pb;
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                pb = new ProcessBuilder("cmd.exe", "/c", "mvn test");
+            } else {
+                pb = new ProcessBuilder("mvn", "test");
+            }
+            pb.inheritIO();
+            Process process = pb.start();
+            process.waitFor();
+            System.out.println("-".repeat(40));
+            System.out.println("Testing process completed.");
+        } catch (Exception e) {
+            System.out.println("Failed to run tests: " + e.getMessage());
+        }
+        System.out.print("\nPress Enter to continue...");
         input.nextLine();
     }
 

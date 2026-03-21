@@ -41,7 +41,7 @@ public class SavingsAccount extends Account {
             throw new InvalidAmountException("❌Error: Withdrawal amount must be positive.");
         }
         if (amount > getBalance()) {
-            throw new InsufficientFundsException("❌Error: Insufficient funds.");
+            throw new InsufficientFundsException("❌Error: Insufficient funds. Current balance:" + getBalance());
         }
         if (getBalance() - amount < minimumBalance) {
             throw new InsufficientFundsException(

@@ -18,7 +18,8 @@ public class Printer {
         System.out.println("1. Manage Accounts (CRUD)");
         System.out.println("2. Perform Transaction");
         System.out.println("3. Generate Account Statements");
-        System.out.println("4. Exit");
+        System.out.println("4. Run Tests");
+        System.out.println("5. Exit");
     }
     public static void printAccountMenu() {
         System.out.println("\nAccount Management Sub-Menu:");
