@@ -32,7 +32,7 @@ public class ExceptionTest {
             acc.withdraw(1000); // 1000 > 500
         });
         
-        assertEquals("Insufficient funds.", exception.getMessage());
+        assertEquals("❌Error: Insufficient funds.", exception.getMessage());
     }
 
     @Test

@@ -1,11 +1,6 @@
 package com.bank.services;
 
-import com.bank.models.Account;
-import com.bank.models.CheckingAccount;
-import com.bank.models.SavingsAccount;
-import com.bank.models.Customer;
-import com.bank.models.PremiumCustomer;
-import com.bank.models.RegularCustomer;
+import com.bank.models.*;
 import com.bank.utils.IdGenerator;
 
 import java.util.Collection;
@@ -16,12 +11,12 @@ import java.util.Map;
  * Manages the collection of bank accounts.
  * Provides functionality to add, find, and view accounts, as well as update customer details.
  */
-public class AccountManager {
+public class AccountService {
     private final Map<String, Account> accounts;
     IdGenerator accountGen = new IdGenerator("ACC");
     IdGenerator customerGen = new IdGenerator("CUS");
 
-    public AccountManager() {
+    public AccountService() {
         this.accounts = new HashMap<>();
         seedData();
     }
@@ -106,11 +101,16 @@ public class AccountManager {
         accounts.put(account.getAccountNumber(), account);
     }
 
+
     private void seedData() {
         insert(new SavingsAccount(new RegularCustomer("Kwizera James", 34, "0788320831", "KK 143 St", customerGen), 1500.00, accountGen));
         insert(new SavingsAccount(new PremiumCustomer("Mugabo Denis", 45, "0733320831", "Nyagatare", customerGen), 5000.00, accountGen));
         insert(new SavingsAccount(new RegularCustomer("Hirwa Jesse", 28, "0799320831", "Bugesera", customerGen), 800.00,accountGen));
         insert(new CheckingAccount(new PremiumCustomer("Igabe Rich", 52, "0784220831", "Gasabo", customerGen), 500.00,accountGen));
         insert(new CheckingAccount(new RegularCustomer("Agaba James", 39, "0723320831", "KK 123 St", customerGen), 1200.00,accountGen));
+    }
+
+    public boolean deleteAccount(String accNumber) {
+        return accounts.remove(accNumber) != null;
     }
 }

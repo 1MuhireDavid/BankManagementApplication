@@ -1,16 +1,17 @@
 package com.bank.services;
 
 import com.bank.models.Transaction;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Tracks and manages all financial transactions in the application.
  */
-public class TransactionManager {
+public class TransactionService {
     private final List<Transaction> transactions;
 
-    public TransactionManager() {
+    public TransactionService() {
         transactions = new ArrayList<>();
     }
 

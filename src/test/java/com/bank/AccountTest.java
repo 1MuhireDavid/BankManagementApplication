@@ -3,7 +3,7 @@ package com.bank;
 import com.bank.models.Customer;
 import com.bank.models.RegularCustomer;
 import com.bank.models.SavingsAccount;
-import com.bank.services.AccountManager;
+import com.bank.services.AccountService;
 import com.bank.utils.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,14 +12,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AccountTest {
 
-    private AccountManager manager;
+    private AccountService manager;
     private Customer regularCustomer;
     private final IdGenerator accountGen = new IdGenerator("ACC");
     private final IdGenerator customerGen = new IdGenerator("CUS");
 
     @BeforeEach
     void setUp() {
-        manager = new AccountManager();
+        manager = new AccountService();
         regularCustomer = new RegularCustomer("John Doe", 30, "123", "Address", customerGen);
     }
 
