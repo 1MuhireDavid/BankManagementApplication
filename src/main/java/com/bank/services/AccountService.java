@@ -74,7 +74,7 @@ public class AccountService {
      * @param newName Optional new name.
      * @param newContact Optional new contact.
      * @param newAddress Optional new address.
-     * @return true if update was successful, false if account missing.
+     * @return true if the update was successful, false if an account missing.
      */
     public boolean updateCustomerDetails(String accountNumber, String newName, String newContact, String newAddress) {
         Account account = findAccount(accountNumber);

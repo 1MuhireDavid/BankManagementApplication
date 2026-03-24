@@ -270,8 +270,8 @@ public class MenuHandler {
         System.out.println("Account Type: " + acc.getAccountType());
         System.out.printf("Current Balance: $%.2f%n", acc.getBalance());
         Printer.printTransactionHistory(acc.getAccountNumber(), transactionService.getTransactions(), transactionService.getTransactionCount());
-
-        readString("\nPress Enter to continue...");
+        System.out.println("\nPress Enter to continue...");
+        input.nextLine();
     }
 
 }
