@@ -10,17 +10,50 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Handles all display logic for the application to enforce the Single Responsibility Principle.
+ * Handles ALL display/print logic for the application (Single Responsibility Principle).
+ * MenuHandler must never call System.out directly — route everything through here.
  */
 public class Printer {
+
+    private static final String THIN  = "-".repeat(44);
+    private static final String THICK = "-".repeat(65);
+    private static final String MED   = "-".repeat(40);
+    private static final String SHORT = "-".repeat(30);
+
+
+    public static void printAppHeader() {
+        System.out.println("-".repeat(50));
+        System.out.println("||   BANK ACCOUNT MANAGEMENT - MAIN MENU   ||");
+        System.out.println("-".repeat(50));
+    }
+
+    public static void printGoodbye() {
+        System.out.println("""
+                 Thank you for using the Bank Account Management System!
+                 Data automatically saved to disk.
+                 Goodbye!""");
+    }
+
+    public static void printInvalidChoice(int min, int max) {
+        System.out.printf("Please input a valid choice (%d-%d).%n", min, max);
+    }
+
+    public static void printPressEnter() {
+        System.out.print("\nPress Enter to continue...");
+    }
+
+
     public static void printMenu() {
         System.out.println("\nMain Menu:");
         System.out.println("-".repeat(20));
-        System.out.println("1. Manage Accounts (CRUD)");
-        System.out.println("2. Perform Transaction");
+        System.out.println("1. Manage Accounts");
+        System.out.println("2. Perform Transactions");
         System.out.println("3. Generate Account Statements");
-        System.out.println("4. Exit");
+        System.out.println("4. Save/Load Data");
+        System.out.println("5. Run Concurrent Simulation");
+        System.out.println("6. Exit");
     }
+
     public static void printAccountMenu() {
         System.out.println("\nAccount Management Sub-Menu:");
         System.out.println("-".repeat(20));
@@ -29,6 +62,19 @@ public class Printer {
         System.out.println("3. Update Account Details");
         System.out.println("4. Delete Account");
         System.out.println("5. Back to Main Menu");
+    }
+
+    public static void printLoadedAccounts(int count) {
+        System.out.println("✔ " + count + "account(s) loaded successfully from accounts.txt");
+    }
+
+    public static void printLoadedTransactions(int count) {
+        System.out.println("✔ " + count + " transaction(s) loaded from transactions.txt");
+    }
+
+    public static void printSectionHeader(String title) {
+        System.out.println("\n" + title);
+        System.out.println(MED);
     }
 
     public static void printAccountAdded(Account account) {
@@ -42,18 +88,30 @@ public class Printer {
         System.out.println("Status: " + account.getStatus());
     }
 
+    public static void printAccountCreationOptions() {
+        System.out.println("\nCustomer type:");
+        System.out.println("1. Regular Customer");
+        System.out.println("2. Premium Customer");
+        System.out.println("\nAccount type:");
+        System.out.println("1. Savings Account (Interest: 3.5%, Min Balance: $500)");
+        System.out.println("2. Checking Account (Overdraft: $1,000, Monthly Fee: $10)");
+    }
+
+    public static void printInvalidAge() {
+        System.out.println("Invalid age.");
+    }
+
     public static void printAllAccounts(Collection<Account> accounts, int count, double totalBalance) {
         if (count == 0) {
             System.out.println("No accounts available.");
             return;
         }
 
-        String line = "-".repeat(65);
         System.out.println("\nACCOUNT LISTING");
-        System.out.println(line);
+        System.out.println(THICK);
         System.out.printf("%-8s | %-18s | %-10s | %-12s | %-8s%n",
                 "ACC NO", "CUSTOMER NAME", "TYPE", "BALANCE", "STATUS");
-        System.out.println(line);
+        System.out.println(THICK);
 
         for (Account acc : accounts) {
             System.out.printf("%-8s | %-18s | %-10s | $%-11s | %-8s%n",
@@ -66,85 +124,162 @@ public class Printer {
             System.out.println();
         }
 
-        System.out.println(line);
+        System.out.println(THICK);
         System.out.println("Total Accounts: " + count);
         System.out.printf("Total Bank Balance: $%,.2f%n", totalBalance);
     }
 
+
+    public static void printCurrentCustomerDetails(Account acc) {
+        System.out.println("\nCurrent Customer Details:");
+        System.out.println("Name:    " + acc.getCustomer().getName());
+        System.out.println("Contact: " + acc.getCustomer().getContact());
+        System.out.println("Address: " + acc.getCustomer().getAddress());
+        System.out.println("\n(Press Enter to keep the current value)");
+    }
+
     public static void printCustomerUpdateSuccess(Account account) {
-        Customer customer = account.getCustomer();
+        Customer c = account.getCustomer();
         System.out.println("✔️ Customer details updated successfully!");
         System.out.println("Account:  " + account.getAccountNumber());
-        System.out.println("Name:     " + customer.getName());
-        System.out.println("Contact:  " + customer.getContact());
-        System.out.println("Address:  " + customer.getAddress());
+        System.out.println("Name:     " + c.getName());
+        System.out.println("Contact:  " + c.getContact());
+        System.out.println("Address:  " + c.getAddress());
+    }
+
+    public static void printUpdateCancelled() {
+        System.out.println("Update cancelled.");
+    }
+
+
+
+    public static void printAccountToDelete(Account acc) {
+        System.out.println("\nAccount to be deleted:");
+        System.out.println("Number:   " + acc.getAccountNumber());
+        System.out.println("Customer: " + acc.getCustomer().getName());
+        System.out.println("Balance:  $" + String.format("%.2f", acc.getBalance()));
+    }
+
+    public static void printAccountDeletedSuccess(String accNumber) {
+        System.out.println("\nACCOUNT DELETED SUCCESSFULLY");
+        System.out.println(SHORT);
+        System.out.printf("Account Number: %s%n", accNumber);
+        System.out.println(SHORT);
+    }
+
+    public static void printDeletionFailed() {
+        System.out.println("Deletion failed.");
+    }
+
+    public static void printDeletionCancelled() {
+        System.out.println("Deletion cancelled.");
+    }
+
+
+
+    public static void printTransactionHeader() {
+        System.out.println("\nPROCESS TRANSACTION");
+        System.out.println(MED);
+    }
+
+    public static void printAccountSummary(Account acc) {
+        System.out.println("\nAccount Details:");
+        System.out.println("Customer:        " + acc.getCustomer().getName());
+        System.out.println("Account Type:    " + acc.getAccountType());
+        System.out.printf ("Current Balance: $%.2f%n", acc.getBalance());
+    }
+
+    public static void printTransactionTypeMenu() {
+        System.out.println("\nTransaction type:");
+        System.out.println("1. Deposit");
+        System.out.println("2. Withdrawal");
+    }
+
+    public static void printTransactionDetails(Transaction transaction) {
+        double previousBalance = transaction.getType().equalsIgnoreCase("Deposit")
+                ? transaction.getBalanceAfter() - transaction.getAmount()
+                : transaction.getBalanceAfter() + transaction.getAmount();
+
+        System.out.println("\nTRANSACTION CONFIRMATION");
+        System.out.println(THIN);
+        System.out.printf("  %-20s: %s%n",  "Transaction ID",   transaction.getTransactionId());
+        System.out.printf("  %-20s: %s%n",  "Account",          transaction.getAccountNumber());
+        System.out.printf("  %-20s: %s%n",  "Type",             transaction.getType().toUpperCase());
+        System.out.printf("  %-20s: $%,.2f%n", "Amount",        transaction.getAmount());
+        System.out.printf("  %-20s: $%,.2f%n", "Previous Balance", previousBalance);
+        System.out.printf("  %-20s: $%,.2f%n", "New Balance",   transaction.getBalanceAfter());
+        System.out.printf("  %-20s: %s%n",  "Date/Time",        transaction.getTimestamp());
+        System.out.println(THIN);
+    }
+
+    public static void printTransactionSuccess() {
+        System.out.println("\n✓ Transaction completed successfully!");
+    }
+
+    public static void printTransactionFailed(String reason) {
+        System.out.println("✗ Transaction failed: " + reason);
+    }
+
+    public static void printTransactionNotRecorded() {
+        System.out.println("✗ Transaction failed and was not recorded.");
+    }
+
+    public static void printTransactionCancelled() {
+        System.out.println("Transaction cancelled.");
+    }
+
+
+
+    public static void printStatementHeader(Account acc) {
+        System.out.println("\nGENERATE ACCOUNT STATEMENT");
+        System.out.println(MED);
+        System.out.println("Account:         " + acc.getAccountNumber() + " - " + acc.getCustomer().getName() + " (" + acc.getAccountType() + ")");
+        System.out.printf ("Current Balance: $%.2f%n", acc.getBalance());
     }
 
     public static void printTransactionHistory(String accountNumber, List<Transaction> transactions, int count) {
         List<Transaction> filtered = transactions.stream()
                 .filter(t -> t.getAccountNumber().equals(accountNumber))
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(Transaction::getTimestamp).reversed())
+                .limit(count)
+                .toList();
 
         if (filtered.isEmpty()) {
             System.out.println("\n No transactions found for this account.");
             return;
         }
 
-        filtered.sort(Comparator.comparing(Transaction::getTimestamp).reversed());
-
-
-        List<Transaction> displayList = filtered.stream().limit(count).toList();
-
-        double totalDeposits = 0;
+        double totalDeposits    = 0;
         double totalWithdrawals = 0;
+        double netChange        = 0;
 
+        System.out.println("Transactions (latest first) ");
         System.out.println("\nTRANSACTION HISTORY FOR ACCOUNT: " + accountNumber);
         System.out.println("-".repeat(73));
-        System.out.printf("%-15s | %-20s | %-15s | %-12s | %-12s%n", "TXN ID", "DATE", "TYPE", "AMOUNT", "BALANCE");
+        System.out.printf("%-15s | %-20s | %-15s | %-12s | %-12s%n",
+                "TXN ID", "DATE", "TYPE", "AMOUNT", "BALANCE");
         System.out.println("-".repeat(73));
-
-        for (Transaction transaction : displayList) {
+        for (Transaction t : filtered) {
             System.out.printf("%-15s | %-20s | %-15s | $%,-11.2f | $%,-11.2f%n",
-                    transaction.getTransactionId(),
-                    transaction.getFormattedTimestamp(),
-                    transaction.getType(),
-                    transaction.getAmount(),
-                    transaction.getBalanceAfter());
+                    t.getTransactionId(),
+                    t.getFormattedTimestamp(),
+                    (t.getType().equalsIgnoreCase("Deposit") ? "DEPOSIT (+)" : "WITHDRAWAL(-)"),
+                    t.getAmount(),
+                    t.getBalanceAfter());
 
-            if (transaction.getType().equalsIgnoreCase("Deposit")) {
-                totalDeposits += transaction.getAmount();
-            } else if (transaction.getType().equalsIgnoreCase("Withdrawal")) {
-                totalWithdrawals += transaction.getAmount();
-            }
+            if (t.getType().equalsIgnoreCase("Deposit"))
+                totalDeposits += t.getAmount();
+            else if (t.getType().equalsIgnoreCase("Withdrawal"))
+                totalWithdrawals += t.getAmount();
         }
 
         System.out.println("-".repeat(73));
         System.out.printf("Total Deposits:    $%,.2f%n", totalDeposits);
         System.out.printf("Total Withdrawals: $%,.2f%n", totalWithdrawals);
+        netChange = totalDeposits - totalWithdrawals;
+
+        System.out.println("Net Change: "+ (netChange>=0?"+":"-") + String.format("%.2f", netChange));
         System.out.println("-".repeat(73));
     }
-    public static void printTransactionDetails(Transaction transaction) {
-        double previousBalance = transaction.getType().equalsIgnoreCase("Deposit")
-                ? transaction.getBalanceAfter() - transaction.getAmount()
-                : transaction.getBalanceAfter() + transaction.getAmount();
 
-        String line = "-".repeat(44);
-        System.out.println("\nTRANSACTION CONFIRMATION");
-        System.out.println(line);
-        System.out.printf("  %-20s: %s%n", "Transaction ID", transaction.getTransactionId());
-        System.out.printf("  %-20s: %s%n", "Account", transaction.getAccountNumber());
-        System.out.printf("  %-20s: %s%n", "Type", transaction.getType().toUpperCase());
-        System.out.printf("  %-20s: $%,.2f%n", "Amount", transaction.getAmount());
-        System.out.printf("  %-20s: $%,.2f%n", "Previous Balance", previousBalance);
-        System.out.printf("  %-20s: $%,.2f%n", "New Balance", transaction.getBalanceAfter());
-        System.out.printf("  %-20s: %s%n", "Date/Time", transaction.getTimestamp());
-        System.out.println(line);
-    }
-
-    public static void printAccountDeletedSuccess(String accNumber) {
-        System.out.println("\nACCOUNT DELETED SUCCESSFULLY");
-        System.out.println("-".repeat(30));
-        System.out.printf("Account Number: %s%n", accNumber);
-        System.out.println("-".repeat(30));
-    }
 }

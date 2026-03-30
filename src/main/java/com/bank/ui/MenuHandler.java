@@ -1,14 +1,17 @@
 package com.bank.ui;
 
+import com.bank.concurrent.ConcurrentTransactionSimulator;
 import com.bank.models.Account;
 import com.bank.models.CheckingAccount;
 import com.bank.models.SavingsAccount;
 import com.bank.models.Customer;
 import com.bank.models.PremiumCustomer;
 import com.bank.models.RegularCustomer;
+import com.bank.services.FilePersistenceService;
 import com.bank.services.TransactionService;
 import com.bank.models.Transaction;
 import com.bank.services.AccountService;
+import com.bank.ui.logger.ConsoleLogger;
 import com.bank.utils.IdGenerator;
 
 import java.time.Clock;
@@ -17,21 +20,32 @@ import java.util.Scanner;
 import static com.bank.ui.Printer.*;
 import static com.bank.utils.ValidationUtils.*;
 
+
+/**
+ * Handles all user input and menu navigation.
+ * Contains zero System.out calls — all output is delegated to Printer.
+ */
 public class MenuHandler {
 
     private final AccountService accountService = new AccountService();
     private final TransactionService transactionService = new TransactionService();
-    IdGenerator accountGen = new IdGenerator("ACC");
-    IdGenerator customerGen = new IdGenerator("CUS");
-    IdGenerator transactionGen = new IdGenerator("TXN");
+    private final FilePersistenceService persistenceService = new FilePersistenceService();
 
-    Scanner input = new Scanner(System.in);
+    private final IdGenerator accountGen = new IdGenerator("ACC");
+    private final IdGenerator customerGen = new IdGenerator("CUS");
+    private final IdGenerator transactionGen = new IdGenerator("TXN");
+
+    private final ConcurrentTransactionSimulator simulator =
+            new ConcurrentTransactionSimulator(accountService, transactionService, transactionGen);
+
+    private final Scanner input = new Scanner(System.in);
+    private boolean running = true;
     public void start() {
-        System.out.println("-".repeat(50));
-        System.out.println("||   BANK ACCOUNT MANAGEMENT - MAIN MENU   ||");
-        System.out.println("-".repeat(50));
+        ConsoleLogger.logAppStart();
+        printAppHeader();
+        loadPersistedData();
 
-        boolean running = true;
+
         while (running) {
             printMenu();
             int choice = readInt("Enter choice: ");
@@ -39,18 +53,22 @@ public class MenuHandler {
                 case 1 -> handleManageAccount();
                 case 2 -> handleTransaction();
                 case 3 -> handleTransViewHistory();
-                case 4 -> {
-                    running = false;
-                    System.out.println("""
-                            
-                             Thank you for using the Bank Account Management System!
-                             All \
-                            data saved in memory. Remember to commit your latest changes to Git!
-                             Goodbye!""");
-                }
-                default -> System.out.println("Please input a valid choice (1-4).");
+                case 4 -> handleSaveLoad();
+                case 5 -> handleConcurrentSimulation();
+                case 6 -> running = handleExit();
+                default -> printInvalidChoice(1, 6);
             }
         }
+    }
+
+    private boolean handleExit() {
+        running = false;
+        persistenceService.saveAll(
+                accountService.getAccounts(),
+                transactionService.getTransactions()
+        );
+        printGoodbye();
+        return running;
     }
 
 
@@ -65,50 +83,68 @@ public class MenuHandler {
                 case 3 -> handleUpdateCustomer();
                 case 4 -> handleDeleteAccount();
                 case 5 -> back = true;
-                default -> System.out.println("Please input a valid choice (1-5).");
+                default -> printInvalidChoice(1, 5);
             }
         }
     }
 
 
-    private void handleDeleteAccount() {
-        System.out.println("\nDELETE ACCOUNT");
+    private void handleCreateAccount() {
+        System.out.println("\nACCOUNT CREATION");
         System.out.println("-".repeat(40));
 
-        String accNumber = readString("Enter Account Number to delete: ").toUpperCase();
-        Account acc = accountService.findAccount(accNumber);
-
-        if (acc == null) {
-            System.out.println("Account not found.");
+        String name = readCustomerName();
+        if (name.isEmpty()) {
+            printSectionHeader("Name cannot be empty.");
             return;
         }
 
-        System.out.println("\nAccount to be deleted:");
-        System.out.println("Number:   " + acc.getAccountNumber());
-        System.out.println("Customer: " + acc.getCustomer().getName());
-        System.out.println("Balance:  $" + String.format("%.2f", acc.getBalance()));
-
-        String confirm = readString("\nAre you SURE you want to delete this account? (Y/N): ").toUpperCase();
-
-        if (confirm.equals("Y")) {
-            if (accountService.deleteAccount(accNumber)) {
-                Printer.printAccountDeletedSuccess(accNumber);
-            } else {
-                System.out.println("Deletion failed.");
-            }
-        } else {
-            System.out.println("Deletion cancelled.");
+        int age = readInt("Enter customer age: ");
+        if (age <= 0 || age > 150) {
+            printInvalidAge();
+            return;
         }
 
-        System.out.print("\nPress Enter to continue...");
+        String contact = readContact("Enter customer contact: ");
+        String email = readEmail("Enter customer email: ");
+
+        String address = readString("Enter customer address: ");
+
+        printAccountCreationOptions();
+
+        int customerType = readInt("Select Customer type (1-2): ");
+        if (customerType < 1 || customerType > 2) {
+            System.out.println("Invalid customer type.");
+            return;
+        }
+
+        int accountType = readInt("Select Account type (1-2): ");
+        if (accountType < 1 || accountType > 2) {
+            System.out.println("Invalid account type.");
+            return;
+        }
+
+        double deposit = readAmount("\nEnter initial deposit amount: $");
+
+        Customer newCustomer = (customerType == 1)
+                ? new RegularCustomer(name, age, contact, email, address, customerGen)
+                : new PremiumCustomer(name, age, contact, email, address, customerGen);
+
+        Account newAccount = (accountType == 1)
+                ? new SavingsAccount(newCustomer, deposit, accountGen)
+                : new CheckingAccount(newCustomer, deposit, accountGen);
+
+        if (accountService.addAccount(newAccount)) {
+            printAccountAdded(newAccount);
+        } else {
+            System.out.println("Account creation failed (ID collision).");
+        }
+        System.out.println("\nPress Enter to continue...");
         input.nextLine();
     }
 
-
-
     private void handleUpdateCustomer() {
-        System.out.println("\nUPDATE CUSTOMER DETAILS");
-        System.out.println("-".repeat(40));
+        printSectionHeader("UPDATE CUSTOMER DETAILS");
 
         String accNumber = readString("Enter Account Number: ").toUpperCase();
 
@@ -118,11 +154,7 @@ public class MenuHandler {
             return;
         }
 
-        System.out.println("\nCurrent Customer Details:");
-        System.out.println("Name:    " + acc.getCustomer().getName());
-        System.out.println("Contact: " + acc.getCustomer().getContact());
-        System.out.println("Address: " + acc.getCustomer().getAddress());
-        System.out.println("\n(Press Enter to keep the current value)");
+        printCurrentCustomerDetails(acc);
 
         System.out.print("New Name [" + acc.getCustomer().getName() + "]: ");
         String newName = new Scanner(System.in).nextLine().trim();
@@ -147,82 +179,44 @@ public class MenuHandler {
         input.nextLine();
     }
 
-    private void handleViewAccounts() {
-        Printer.printAllAccounts(accountService.getAccounts(), accountService.getAccountCount(), accountService.getTotalBalance());
-        System.out.println("\nPress Enter to continue...");
-        input.nextLine();
-    }
+    private void handleDeleteAccount() {
+        printSectionHeader("DELETE ACCOUNT");
 
-    private void handleCreateAccount() {
-        System.out.println("\nACCOUNT CREATION");
-        System.out.println("-".repeat(40));
+        String accNumber = readString("Enter Account Number to delete: ").toUpperCase();
+        Account acc = accountService.findAccount(accNumber);
 
-        String name = readCustomerName();
-        if (name.isEmpty()) {
-            System.out.println("Name cannot be empty.");
+        if (acc == null) {
+            System.out.println("Account not found.");
             return;
         }
 
-        int age = readInt("Enter customer age: ");
-        if (age <= 0 || age > 150) {
-            System.out.println("Invalid age.");
-            return;
-        }
+        printAccountToDelete(acc);
 
-        String contact = readString("Enter customer contact: ");
-        String address = readString("Enter customer address: ");
+        String confirm = readString("\nAre you SURE you want to delete this account? (Y/N): ").toUpperCase();
 
-        System.out.println("\nCustomer type:");
-        System.out.println("1. Regular Customer");
-        System.out.println("2. Premium Customer");
-        int customerType = readInt("Select type (1-2): ");
-        if (customerType < 1 || customerType > 2) {
-            System.out.println("Invalid customer type.");
-            return;
-        }
-
-        System.out.println("\nAccount type:");
-        System.out.println("1. Savings Account (Interest: 3.5%, Min Balance: $500)");
-        System.out.println("2. Checking Account (Overdraft: $1,000, Monthly Fee: $10)");
-        int accountType = readInt("Select type (1-2): ");
-        if (accountType < 1 || accountType > 2) {
-            System.out.println("Invalid account type.");
-            return;
-        }
-
-        double deposit = readAmount("\nEnter initial deposit amount: $");
-
-        Customer newCustomer = (customerType == 1)
-                ? new RegularCustomer(name, age, contact, address, customerGen)
-                : new PremiumCustomer(name, age, contact, address, customerGen);
-
-        Account newAccount = (accountType == 1)
-                ? new SavingsAccount(newCustomer, deposit, accountGen)
-                : new CheckingAccount(newCustomer, deposit, accountGen);
-
-        if (accountService.addAccount(newAccount)) {
-            Printer.printAccountAdded(newAccount);
+        if (confirm.equals("Y")) {
+            if (accountService.deleteAccount(accNumber)) {
+                Printer.printAccountDeletedSuccess(accNumber);
+            } else {
+                System.out.println("Deletion failed.");
+            }
         } else {
-            System.out.println("Account list is full.");
+            System.out.println("Deletion cancelled.");
         }
-        readString("\nPress Enter to continue...");
+
+        System.out.print("\nPress Enter to continue...");
+        input.nextLine();
     }
 
     private void handleTransaction() {
 
-        System.out.println("\nPROCESS TRANSACTION");
-        System.out.println("-".repeat(40));
+        printTransactionHeader();
 
         Account acc = readAccountNumber(accountService);
 
-        System.out.println("\nAccount Details:");
-        System.out.println("Customer:  " + acc.getCustomer().getName());
-        System.out.println("Account Type: " + acc.getAccountType());
-        System.out.printf("Current Balance: $%.2f%n", acc.getBalance());
+        printAccountSummary(acc);
 
-        System.out.println("\nTransaction type:");
-        System.out.println("1. Deposit");
-        System.out.println("2. Withdrawal");
+        printTransactionTypeMenu();
         int transTypeNum = readTypeNum();
 
         double amount = readAmount("Enter amount: $");
@@ -232,9 +226,10 @@ public class MenuHandler {
         double previewBalance = transType.equals("Deposit")
                 ? acc.getBalance() + amount
                 : acc.getBalance() - amount;
-        Clock clock = Clock.systemDefaultZone();
-        Transaction preview = new Transaction(acc.getAccountNumber(), transType, amount, previewBalance, transactionGen, clock);
-        Printer.printTransactionDetails(preview);
+
+        Transaction preview = new Transaction(acc.getAccountNumber(), transType, amount, previewBalance, transactionGen, Clock.systemDefaultZone());
+
+        printTransactionDetails(preview);
 
         String confirm = readString("Confirm transaction? (Y/N): ").toUpperCase();
 
@@ -242,7 +237,8 @@ public class MenuHandler {
             try {
                 boolean success = acc.processTransaction(amount, transType);
                 if (success) {
-                    if (transactionService.addTransaction(preview)) {
+                    Transaction record = new Transaction(acc.getAccountNumber(), transType, amount, acc.getBalance(), transactionGen, Clock.systemDefaultZone());
+                    if (transactionService.addTransaction(record)) {
                         System.out.println("\n✓ Transaction completed successfully!");
                     } else {
                         System.out.println("✗ Transaction failed: Transaction memory is full.");
@@ -261,17 +257,74 @@ public class MenuHandler {
         input.nextLine();
     }
 
-    private void handleTransViewHistory() {
-        System.out.println("\nGENERATE ACCOUNT STATEMENT");
-        System.out.println("-".repeat(40));
-
-        Account acc = readAccountNumber(accountService);
-        System.out.println("Account: " + acc.getAccountNumber() + " - " + acc.getCustomer().getName());
-        System.out.println("Account Type: " + acc.getAccountType());
-        System.out.printf("Current Balance: $%.2f%n", acc.getBalance());
-        Printer.printTransactionHistory(acc.getAccountNumber(), transactionService.getTransactions(), transactionService.getTransactionCount());
+    private void handleViewAccounts() {
+        Printer.printAllAccounts(accountService.getAccounts(), accountService.getAccountCount(), accountService.getTotalBalance());
         System.out.println("\nPress Enter to continue...");
         input.nextLine();
+    }
+
+    private void handleTransViewHistory() {
+        printSectionHeader("GENERATE ACCOUNT STATEMENT");
+
+        Account acc = readAccountNumber(accountService);
+        printStatementHeader(acc);
+        printTransactionHistory(acc.getAccountNumber(), transactionService.getTransactions(), transactionService.getTransactionCount());
+        System.out.println("\nPress Enter to continue...");
+        input.nextLine();
+    }
+
+    private void handleSaveLoad() {
+        printSectionHeader("SAVE / LOAD DATA");
+        System.out.println("1. Save data to file");
+        System.out.println("2. Load data from file");
+        System.out.println("3. Back");
+        int choice = readInt("Enter choice: ");
+        switch (choice) {
+            case 1 -> {
+                persistenceService.saveAccounts(accountService.getAccounts());
+                persistenceService.saveTransactions(transactionService.getTransactions());
+            }
+            case 2 -> loadPersistedData();
+            case 3 -> { /* back */ }
+            default -> printInvalidChoice(1, 3);
+        }
+        printPressEnter();
+        input.nextLine();
+    }
+
+    private void handleConcurrentSimulation() {
+        printSectionHeader("CONCURRENT TRANSACTION SIMULATION");
+        printAllAccounts(accountService.getAccounts(),
+                accountService.getAccountCount(),
+                accountService.getTotalBalance());
+
+        String accNumber = readString("Enter account number to simulate on: ").toUpperCase();
+        int    threads   = readInt("Number of concurrent threads (e.g. 5): ");
+        double amount    = readAmount("Base amount per transaction: $");
+
+        System.out.println("\nSimulation Type:");
+        System.out.println("1. Fixed amount for all threads");
+        System.out.println("2. Randomized amounts per thread");
+        int simType = readInt("Select simulation type (1-2): ");
+        boolean randomize = (simType == 2);
+
+        simulator.run(accNumber, threads, amount, randomize);
+        printPressEnter();
+        input.nextLine();
+    }
+
+    private void loadPersistedData() {
+        var loadedAccounts = persistenceService.loadAccounts(accountGen, customerGen);
+        var loadedTxns     = persistenceService.loadTransactions(transactionGen);
+
+        if (!loadedAccounts.isEmpty()) {
+            loadedAccounts.forEach(accountService::addAccount);
+            printLoadedAccounts(loadedAccounts.size());
+        }
+        if (!loadedTxns.isEmpty()) {
+            loadedTxns.forEach(transactionService::addTransaction);
+            printLoadedTransactions(loadedTxns.size());
+        }
     }
 
 }

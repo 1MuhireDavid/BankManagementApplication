@@ -25,7 +25,7 @@ public class ExceptionTest {
     }
     @Test
     void testInsufficientFundsException() {
-        Customer customer = new RegularCustomer("Test", 20, "123", "Addr", genCustomer);
+        Customer customer = new RegularCustomer("Test", 20, "123", "test@example.com", "Addr", genCustomer);
         SavingsAccount acc = new SavingsAccount(customer, 500, genAccount);
         
         Exception exception = assertThrows(InsufficientFundsException.class, () -> {
@@ -37,7 +37,7 @@ public class ExceptionTest {
 
     @Test
     void testInvalidAmountException() {
-        Customer customer = new RegularCustomer("Test", 20, "123", "Addr", genCustomer);
+        Customer customer = new RegularCustomer("Test", 20, "123", "test@example.com", "Addr", genCustomer);
         SavingsAccount acc = new SavingsAccount(customer, 500, genAccount);
         
         assertThrows(InvalidAmountException.class, () -> {
@@ -47,7 +47,7 @@ public class ExceptionTest {
 
     @Test
     void testOverdraftExceededException() {
-        Customer customer = new RegularCustomer("Test", 20, "123", "Addr", genCustomer);
+        Customer customer = new RegularCustomer("Test", 20, "123", "test@example.com", "Addr", genCustomer);
         CheckingAccount acc = new CheckingAccount(customer, 500, genAccount);
         assertThrows(OverdraftExceededException.class, () -> {
             acc.withdraw(2000); // 2000 > 1500

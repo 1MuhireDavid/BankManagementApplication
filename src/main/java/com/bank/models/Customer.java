@@ -7,13 +7,15 @@ public abstract class Customer {
     private String name;
     private int age;
     private String contact;
+    private String email;
     private String address;
 
-    public Customer(String name, int age, String contact, String address, IdGenerator generator) {
+    public Customer(String name, int age, String contact, String email, String address, IdGenerator generator) {
         this.customerId = generator.generateId();
         this.name = name;
         this.age = age;
         this.contact = contact;
+        this.email = email;
         this.address = address;
     }
 
@@ -58,5 +60,13 @@ public abstract class Customer {
 
     public boolean hasFeeWaived() {
         return false;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

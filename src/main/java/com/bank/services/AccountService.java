@@ -27,9 +27,6 @@ public class AccountService {
      * @return true if added, false if it already exists.
      */
     public boolean addAccount(Account account) {
-        if (accounts.containsKey(account.getAccountNumber())) {
-            return false;
-        }
         accounts.put(account.getAccountNumber(), account);
         return true;
     }
@@ -103,11 +100,11 @@ public class AccountService {
 
 
     private void seedData() {
-        insert(new SavingsAccount(new RegularCustomer("Kwizera James", 34, "0788320831", "KK 143 St", customerGen), 1500.00, accountGen));
-        insert(new SavingsAccount(new PremiumCustomer("Mugabo Denis", 45, "0733320831", "Nyagatare", customerGen), 5000.00, accountGen));
-        insert(new SavingsAccount(new RegularCustomer("Hirwa Jesse", 28, "0799320831", "Bugesera", customerGen), 800.00,accountGen));
-        insert(new CheckingAccount(new PremiumCustomer("Igabe Rich", 52, "0784220831", "Gasabo", customerGen), 500.00,accountGen));
-        insert(new CheckingAccount(new RegularCustomer("Agaba James", 39, "0723320831", "KK 123 St", customerGen), 1200.00,accountGen));
+        insert(new SavingsAccount(new RegularCustomer("Kwizera James", 34, "0788320831","james@gmail.com", "KK 143 St", customerGen), 1500.00, accountGen));
+        insert(new SavingsAccount(new PremiumCustomer("Mugabo Denis", 45, "0733320831", "denis@gmail.com","Nyagatare", customerGen), 5000.00, accountGen));
+        insert(new SavingsAccount(new RegularCustomer("Hirwa Jesse", 28, "0799320831", "jesse@gmail.com","Bugesera", customerGen), 800.00,accountGen));
+        insert(new CheckingAccount(new PremiumCustomer("Igabe Rich", 52, "0784220831","rich@gmail.com","Gasabo", customerGen), 500.00,accountGen));
+        insert(new CheckingAccount(new RegularCustomer("Agaba James", 39, "0723320831", "agaba@gmail.com","KK 123 St", customerGen), 1200.00,accountGen));
     }
 
     public boolean deleteAccount(String accNumber) {

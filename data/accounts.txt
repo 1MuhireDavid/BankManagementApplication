@@ -1,0 +1,5 @@
+ACC003|Savings|Regular|Hirwa Jesse|28|0799320831|jesse@gmail.com|Bugesera|1112.4385389910688|Active
+ACC004|Checking|Premium|Igabe Rich|52|0784220831|rich@gmail.com|Gasabo|1034.8544739667595|Active
+ACC001|Savings|Regular|daivd|72|0788123942||Kigali|41157.78287458312|Active
+ACC002|Checking|Regular|Martin Hecker|76|0788231231||Nyamirambo|2640.1367722803684|Active
+ACC005|Checking|Regular|Agaba James|39|0723320831|agaba@gmail.com|KK 123 St|3045.0293765004785|Active

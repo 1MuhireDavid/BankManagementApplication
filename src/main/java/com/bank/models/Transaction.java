@@ -64,4 +64,7 @@ public class Transaction {
         return timestamp.format(formatter);
     }
 
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
 }

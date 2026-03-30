@@ -20,7 +20,7 @@ public class AccountTest {
     @BeforeEach
     void setUp() {
         manager = new AccountService();
-        regularCustomer = new RegularCustomer("John Doe", 30, "123", "Address", customerGen);
+        regularCustomer = new RegularCustomer("John Doe", 30, "123", "john@gmail.com","Address", customerGen);
     }
 
     @Test

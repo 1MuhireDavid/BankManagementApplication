@@ -7,8 +7,8 @@ public class PremiumCustomer extends Customer {
     private double minimumBalance;
     private double minToMaintainPremiumStatus = 10000;
 
-    public PremiumCustomer(String name, int age, String contact, String address, IdGenerator generator) {
-        super(name, age, contact, address, generator);
+    public PremiumCustomer(String name, int age, String contact,String email, String address, IdGenerator generator) {
+        super(name, age, contact, email, address, generator);
     }
 
     public double getMinimumBalance() {

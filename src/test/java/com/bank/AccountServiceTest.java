@@ -22,7 +22,7 @@ public class AccountServiceTest {
         accountService = new AccountService();
         genAccount = new IdGenerator("T-ACC");
         IdGenerator genCustomer = new IdGenerator("CUS");
-        regularCustomer = new RegularCustomer("Test User", 30, "123", "Address", genCustomer);
+        regularCustomer = new RegularCustomer("Test User", 30, "123", "test@example.com", "Address", genCustomer);
     }
 
     @Test
