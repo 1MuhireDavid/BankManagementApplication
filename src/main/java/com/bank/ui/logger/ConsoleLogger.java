@@ -104,21 +104,19 @@ public class ConsoleLogger {
     }
 
     public static void logSaveHeader() {
-        System.out.println();
-        System.out.println(" SAVING ACCOUNT DATA");
-        System.out.println(" " + "─".repeat(40));
+        System.out.println("\nSAVING ACCOUNT DATA");
+        System.out.println("-".repeat(40));
     }
 
-    public static void logSaveAccountsLine(String filename, int count) {
-        System.out.printf(" %d Account(s) saved to %s%n", count, filename);
+    public static void logSaveAccountsLine(String filename) {
+        System.out.printf("Accounts saved to %s%n", filename);
     }
 
-    public static void logSaveTransactionsLine(String filename, int count) {
-        System.out.printf(" %d Transaction(s) saved to %s%n", count, filename);
+    public static void logSaveTransactionsLine(String filename) {
+        System.out.printf("Transactions saved to %s%n", filename);
     }
 
     public static void logSaveFooter() {
-        System.out.println(" ✓ File save completed successfully.");
-        System.out.println();
+        System.out.println("✓ File save completed successfully.\n");
     }
 }

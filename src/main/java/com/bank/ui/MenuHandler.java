@@ -280,10 +280,10 @@ public class MenuHandler {
         System.out.println("3. Back");
         int choice = readInt("Enter choice: ");
         switch (choice) {
-            case 1 -> {
-                persistenceService.saveAccounts(accountService.getAccounts());
-                persistenceService.saveTransactions(transactionService.getTransactions());
-            }
+            case 1 -> persistenceService.saveAll(
+                    accountService.getAccounts(),
+                    transactionService.getTransactions()
+            );
             case 2 -> loadPersistedData();
             case 3 -> { /* back */ }
             default -> printInvalidChoice(1, 3);

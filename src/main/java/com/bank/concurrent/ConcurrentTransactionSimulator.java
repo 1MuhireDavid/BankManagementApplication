@@ -87,12 +87,8 @@ public class ConcurrentTransactionSimulator {
         String displayName = "Thread-" + thread.substring(thread.lastIndexOf("-") + 1);
         ConsoleLogger.logThreadStart(displayName, acc.getAccountNumber(), "Deposit", amount);
         synchronized (depositLock) {
-            try {
                 acc.deposit(amount);
                 logTransaction(acc, "Deposit", amount);
-            } catch (RuntimeException e) {
-                // Fail silently for simulation polish
-            }
         }
     }
 
@@ -101,12 +97,8 @@ public class ConcurrentTransactionSimulator {
         String displayName = "Thread-" + thread.substring(thread.lastIndexOf("-") + 1);
         ConsoleLogger.logThreadStart(displayName, acc.getAccountNumber(), "Withdrawal", amount);
         synchronized (withdrawLock) {
-            try {
                 acc.withdraw(amount);
                 logTransaction(acc, "Withdrawal", amount);
-            } catch (RuntimeException e) {
-                // Fail silently for simulation polish
-            }
         }
     }
 

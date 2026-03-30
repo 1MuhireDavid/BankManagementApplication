@@ -39,37 +39,21 @@ public class FilePersistenceService {
         List<String> accLines = accounts.stream()
                 .map(FilePersistenceService::accountToLine)
                 .collect(Collectors.toList());
-        write(ACCOUNTS_FILE, accLines, "accounts");
-        ConsoleLogger.logSaveAccountsLine(ACCOUNTS_FILE.getFileName().toString(), accLines.size());
+        writeQuietly(ACCOUNTS_FILE, accLines);
+        ConsoleLogger.logSaveAccountsLine(ACCOUNTS_FILE.getFileName().toString());
 
         List<String> txnLines = transactions.stream()
                 .map(FilePersistenceService::transactionToLine)
                 .collect(Collectors.toList());
-        write(TRANSACTIONS_FILE, txnLines, "transactions");
-        ConsoleLogger.logSaveTransactionsLine(TRANSACTIONS_FILE.getFileName().toString(), txnLines.size());
+        writeQuietly(TRANSACTIONS_FILE, txnLines);
+        ConsoleLogger.logSaveTransactionsLine(TRANSACTIONS_FILE.getFileName().toString());
 
         ConsoleLogger.logSaveFooter();
     }
 
-    public void saveAccounts(Collection<Account> accounts) {
-        ConsoleLogger.logFileSaveStart(ACCOUNTS_FILE.toString());
-        List<String> lines = accounts.stream()
-                .map(FilePersistenceService::accountToLine)
-                .collect(Collectors.toList());
-        write(ACCOUNTS_FILE, lines, "accounts");
-    }
-
-    public void saveTransactions(List<Transaction> transactions) {
-        ConsoleLogger.logFileSaveStart(TRANSACTIONS_FILE.toString());
-        List<String> lines = transactions.stream()
-                .map(FilePersistenceService::transactionToLine)
-                .collect(Collectors.toList());
-        write(TRANSACTIONS_FILE, lines, "transactions");
-    }
 
 
     public List<Account> loadAccounts(IdGenerator accountGen, IdGenerator customerGen) {
-        ConsoleLogger.logFileLoadStart(ACCOUNTS_FILE.toString());
         if (Files.notExists(ACCOUNTS_FILE)) {
             ConsoleLogger.logFileLoadSkipped(ACCOUNTS_FILE.toString());
             return Collections.emptyList();
@@ -80,7 +64,6 @@ public class FilePersistenceService {
                     .map(l -> parseLine(l, accountGen, customerGen))
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
-            ConsoleLogger.logFileLoadSuccess(ACCOUNTS_FILE.toString(), loaded.size());
             return loaded;
         } catch (IOException e) {
             ConsoleLogger.logFileLoadFailed(ACCOUNTS_FILE.toString(), e.getMessage());
@@ -89,19 +72,16 @@ public class FilePersistenceService {
     }
 
     public List<Transaction> loadTransactions(IdGenerator txnGen) {
-        ConsoleLogger.logFileLoadStart(TRANSACTIONS_FILE.toString());
         if (Files.notExists(TRANSACTIONS_FILE)) {
             ConsoleLogger.logFileLoadSkipped(TRANSACTIONS_FILE.toString());
             return Collections.emptyList();
         }
         try (Stream<String> lines = Files.lines(TRANSACTIONS_FILE)) {
-            List<Transaction> loaded = lines
+            return lines
                     .filter(l -> !l.isBlank())
                     .map(l -> parseTransaction(l, txnGen))
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
-            ConsoleLogger.logFileLoadSuccess(TRANSACTIONS_FILE.toString(), loaded.size());
-            return loaded;
         } catch (IOException e) {
             ConsoleLogger.logFileLoadFailed(TRANSACTIONS_FILE.toString(), e.getMessage());
             return Collections.emptyList();
@@ -195,6 +175,17 @@ public class FilePersistenceService {
         } catch (Exception e) {
             ConsoleLogger.logMalformedLine(TRANSACTIONS_FILE.toString(), line);
             return null;
+        }
+    }
+
+    private void writeQuietly(Path path, List<String> lines) {
+        try {
+            Files.write(path, lines,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING,
+                    StandardOpenOption.WRITE);
+        } catch (IOException e) {
+            ConsoleLogger.logFileSaveFailed(path.toString(), e.getMessage());
         }
     }
 
