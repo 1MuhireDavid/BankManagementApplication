@@ -15,17 +15,15 @@ public class ValidationUtils {
     static Scanner input = new Scanner(System.in);
 
 
-
     private static final String ACCOUNT_NUMBER_REGEX = "^ACC\\d{3}$";
     private static final String EMAIL_REGEX          = "^[\\w._%+\\-]+@[\\w.\\-]+\\.[a-zA-Z]{2,}$";
-    private static final String PHONE_REGEX          = "^07\\d{8}$";   // Rwandan format: 07XXXXXXXX
+    private static final String PHONE_REGEX          = "^07\\d{8}$";
 
 
 
     public static final Predicate<String> IS_VALID_ACCOUNT = s -> s != null && s.matches(ACCOUNT_NUMBER_REGEX);
     public static final Predicate<String> IS_VALID_EMAIL   = s -> s != null && s.matches(EMAIL_REGEX);
     public static final Predicate<String> IS_VALID_PHONE   = s -> s != null && s.matches(PHONE_REGEX);
-
 
 
     public static boolean isValidAccountNumber(String value) {
@@ -107,7 +105,7 @@ public class ValidationUtils {
         while (true) {
             System.out.print(prompt);
             String value = input.nextLine().trim();
-            if (IS_VALID_PHONE.test(value)) return value;
+            if (isValidPhone(value)) return value;
             System.out.println("❌ Invalid contact. Enter a valid phone (07XXXXXXXX)");
         }
     }
@@ -120,7 +118,7 @@ public class ValidationUtils {
         while (true) {
             System.out.print(prompt);
             String value = input.nextLine().trim();
-            if (IS_VALID_EMAIL.test(value) ) {
+            if (isValidEmail(value) ) {
                 System.out.println("Email accepted!");
                 return value;
             }
@@ -135,7 +133,7 @@ public class ValidationUtils {
         while (true) {
             System.out.print("Enter Account Number: ");
             String accNumber = input.nextLine().trim().toUpperCase();
-            if (!IS_VALID_ACCOUNT.test(accNumber)) {
+            if (!isValidAccountNumber(accNumber)) {
                 System.out.println("❌ Invalid format. Account numbers must match ACC followed by 3 digits (e.g. ACC001).");
                 continue;
             }

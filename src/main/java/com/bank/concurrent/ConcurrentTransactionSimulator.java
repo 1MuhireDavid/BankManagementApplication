@@ -9,11 +9,9 @@ import com.bank.utils.IdGenerator;
 
 import java.time.Clock;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Simulates concurrent deposits and withdrawals using Threads and parallel streams.
@@ -26,8 +24,8 @@ public class ConcurrentTransactionSimulator {
     private final TransactionService transactionService;
     private final IdGenerator        transactionGen;
 
-    private final Object depositLock  = new Object();
-    private final Object withdrawLock = new Object();
+//    private final Object depositLock  = new Object();
+//    private final Object withdrawLock = new Object();
 
     /** Per-account locks used by the parallel stream batch to avoid locking on a local variable. */
     private final ConcurrentHashMap<String, ReentrantLock> accountLocks = new ConcurrentHashMap<>();
@@ -71,9 +69,13 @@ public class ConcurrentTransactionSimulator {
             }
 
             for (Future<?> f : futures) {
-                try { f.get(); }
-                catch (InterruptedException | ExecutionException e) {
-                    // Fail silently for simulation polish
+                try {
+                    f.get();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    ConsoleLogger.error("Thread interrupted while waiting for tasks");
+                } catch (ExecutionException e) {
+                    ConsoleLogger.error("Task execution failed: " + e.getCause());
                 }
             }
         } // executor.close() calls shutdown() + awaitTermination() automatically
@@ -82,23 +84,33 @@ public class ConcurrentTransactionSimulator {
     }
 
     private void safeDeposit(Account acc, double amount) {
+        ReentrantLock lock = lockFor(acc);
         String thread = Thread.currentThread().getName();
         // Extract thread number for cleaner output (e.g., Thread-1)
         String displayName = "Thread-" + thread.substring(thread.lastIndexOf("-") + 1);
         ConsoleLogger.logThreadStart(displayName, acc.getAccountNumber(), "Deposit", amount);
-        synchronized (depositLock) {
-                acc.deposit(amount);
-                logTransaction(acc, "Deposit", amount);
+
+        lock.lock();
+        try{
+            acc.deposit(amount);
+            logTransaction(acc, "Deposit", amount);
+        }finally {
+            lock.unlock();
         }
     }
 
     private void safeWithdraw(Account acc, double amount) {
+        ReentrantLock lock = lockFor(acc);
         String thread = Thread.currentThread().getName();
         String displayName = "Thread-" + thread.substring(thread.lastIndexOf("-") + 1);
         ConsoleLogger.logThreadStart(displayName, acc.getAccountNumber(), "Withdrawal", amount);
-        synchronized (withdrawLock) {
-                acc.withdraw(amount);
-                logTransaction(acc, "Withdrawal", amount);
+
+        lock.lock();
+        try{
+            acc.withdraw(amount);
+            logTransaction(acc, "Withdrawal", amount);
+        }finally {
+            lock.unlock();
         }
     }
 
