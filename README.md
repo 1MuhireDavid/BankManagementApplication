@@ -57,15 +57,14 @@ BankAccountManagement/
 
 ## Sample Output
 ### Screenshot 1: Main Menu
-<img width="616" height="220" alt="image" src="https://github.com/user-attachments/assets/2066612c-ca71-425d-a67d-49204a4aeffc" />
+<img width="615" height="342" alt="Screenshot 2026-03-31 111624" src="https://github.com/user-attachments/assets/41875ef0-bc4f-43f3-a335-11d01c310f23" />
 
 ### Screenshot 2: Account Creation (Savings account)
-<img width="624" height="643" alt="Screenshot 2026-03-10 154420" src="https://github.com/user-attachments/assets/0db5df6a-9eaa-4253-98ba-eaa74c178b67" />
-
+<img width="796" height="634" alt="image" src="https://github.com/user-attachments/assets/1fa48963-bcb4-47f9-9ef0-64f1eac9bcfd" />
 ### Screenshot 3: Account Creation (Checking account)
-<img width="653" height="646" alt="Screenshot 2026-03-10 154407" src="https://github.com/user-attachments/assets/b74fa474-b556-4713-8f1b-f75b83877eaa" />
+<img width="759" height="743" alt="image" src="https://github.com/user-attachments/assets/fcf83d44-d38d-4f15-84b8-cedec65faae8" />
 
-### Screenshot 4: View Accounts
+### Screenshot 4: Generate Account Statements
 <img width="680" height="550" alt="Screenshot 2026-03-10 154324" src="https://github.com/user-attachments/assets/6a08dc14-66c9-4ed4-a580-1ba8a23c47ac" />
 
 ### Screenshot 5: Process Transaction (Deposit)
@@ -81,8 +80,7 @@ BankAccountManagement/
 
 
 ### Screenshot 8: Exit with a (Good Bye message)
-<img width="472" height="59" alt="Screenshot 2026-03-10 154906" src="https://github.com/user-attachments/assets/4cc0f004-9693-420b-9924-f41757e557dc" />
-
+<img width="554" height="185" alt="Screenshot 2026-03-31 111808" src="https://github.com/user-attachments/assets/9b52a60a-6236-4a18-9164-e97a5f38b957" />
 
 ---
 ## OOP Concepts Demonstrated
