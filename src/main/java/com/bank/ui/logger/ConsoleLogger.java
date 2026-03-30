@@ -5,17 +5,18 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * Centralised logger for real-time console feedback.
- * Covers three concerns: file I/O operations, thread activity, and general app events.
- * All output includes a timestamp, so logs are readable and traceable.
+ * Every line carries a [HH:mm:ss.SSS] timestamp and a level symbol:
+ *   ℹ  info    ✔  success    ⚠  warn    ✗  error    ⟳  thread activity
  */
 public class ConsoleLogger {
 
     private static final DateTimeFormatter FMT =
             DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
+    // ── Core log levels ──────────────────────────────────────────────────────
 
     public static void info(String message) {
-        System.out.printf(" %s%n", message);
+        System.out.printf("[%s] ℹ  %s%n", now(), message);
     }
 
     public static void success(String message) {
@@ -30,6 +31,7 @@ public class ConsoleLogger {
         System.out.printf("[%s] ✗  %s%n", now(), message);
     }
 
+    // ── File I/O ─────────────────────────────────────────────────────────────
 
     public static void logFileSaveStart(String filename) {
         info("Saving data → " + filename);
@@ -44,7 +46,7 @@ public class ConsoleLogger {
     }
 
     public static void logFileLoadStart(String filename) {
-        info("Loading data ← " + filename + " ...");
+        info("Loading data ← " + filename);
     }
 
     public static void logFileLoadSuccess(String filename, int recordCount) {
@@ -63,20 +65,40 @@ public class ConsoleLogger {
         warn(String.format("Skipping malformed line in %s: %s", filename, line));
     }
 
+    // ── Save UI ──────────────────────────────────────────────────────────────
+
+    public static void logSaveHeader() {
+        info("SAVING ACCOUNT DATA");
+    }
+
+    public static void logSaveAccountsLine(String filename) {
+        info("Accounts     → " + filename);
+    }
+
+    public static void logSaveTransactionsLine(String filename) {
+        info("Transactions → " + filename);
+    }
+
+    public static void logSaveFooter() {
+        success("File save completed successfully.");
+    }
+
+    // ── Concurrency ──────────────────────────────────────────────────────────
+
+    public static void logSimulationStart() {
+        info("Running concurrent transaction simulation...");
+    }
+
     public static void logThreadStart(String threadName, String accountNumber, String operation, double amount) {
-        String action = operation.endsWith("al") ? "Withdrawing" : "Depositing";
-        String preposition = operation.endsWith("al") ? "from" : "to";
-        System.out.printf("%s: %s $%,.2f %s %s%n",
-                threadName, action, amount, preposition, accountNumber);
+        String action      = operation.endsWith("al") ? "Withdrawing" : "Depositing";
+        String preposition = operation.endsWith("al") ? "from"        : "to";
+        System.out.printf("[%s] ⟳  %s: %s $%,.2f %s %s%n",
+                now(), threadName, action, amount, preposition, accountNumber);
     }
 
     public static void logThreadPoolComplete(String accountNumber, double finalBalance) {
-        System.out.println("\n✓ Thread-safe operations completed successfully.");
-        System.out.printf("Final Balance for %s: $%,.2f%n", accountNumber, finalBalance);
-    }
-
-    public static void logSimulationStart() {
-        System.out.println("\nRunning concurrent transaction simulation...\n");
+        success(String.format("All threads done — %s final balance: $%,.2f",
+                accountNumber, finalBalance));
     }
 
     public static void logParallelBatchStart(int accountCount) {
@@ -87,36 +109,20 @@ public class ConsoleLogger {
         success(String.format("Batch complete — total bank balance: $%,.2f", totalBalance));
     }
 
-
+    // ── App lifecycle ────────────────────────────────────────────────────────
 
     public static void logAppStart() {
         info("Bank Account Management System starting...");
     }
-
 
     public static void logDataLoadSummary(int accounts, int transactions) {
         success(String.format("Session restored — %d account(s), %d transaction(s) loaded",
                 accounts, transactions));
     }
 
+    // ── Internal ─────────────────────────────────────────────────────────────
+
     private static String now() {
         return LocalDateTime.now().format(FMT);
-    }
-
-    public static void logSaveHeader() {
-        System.out.println("\nSAVING ACCOUNT DATA");
-        System.out.println("-".repeat(40));
-    }
-
-    public static void logSaveAccountsLine(String filename) {
-        System.out.printf("Accounts saved to %s%n", filename);
-    }
-
-    public static void logSaveTransactionsLine(String filename) {
-        System.out.printf("Transactions saved to %s%n", filename);
-    }
-
-    public static void logSaveFooter() {
-        System.out.println("✓ File save completed successfully.\n");
     }
 }

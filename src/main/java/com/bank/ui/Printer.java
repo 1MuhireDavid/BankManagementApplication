@@ -7,6 +7,7 @@ import com.bank.models.Transaction;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -52,6 +53,100 @@ public class Printer {
         System.out.println("4. Save/Load Data");
         System.out.println("5. Run Concurrent Simulation");
         System.out.println("6. Exit");
+    }
+
+    public static void printStatementMenu() {
+        System.out.println("\nStatement Options:");
+        System.out.println("-".repeat(40));
+        System.out.println("1. Full Statement (Newest First)");
+        System.out.println("2. By Date — Oldest First");
+        System.out.println("3. By Amount — Largest First");
+        System.out.println("4. By Amount — Smallest First");
+        System.out.println("5. By Type (Deposits / Withdrawals)");
+        System.out.println("6. Group Summary");
+        System.out.println("7. Top Deposits");
+        System.out.println("8. Back");
+    }
+
+    public static void printSortedTransactions(List<Transaction> transactions, String description) {
+        System.out.println("\n" + description.toUpperCase());
+        System.out.println("-".repeat(73));
+        if (transactions.isEmpty()) {
+            System.out.println(" No transactions found.");
+            System.out.println("-".repeat(73));
+            return;
+        }
+        System.out.printf("%-15s | %-10s | %-20s | %-14s | %-12s%n",
+                "TXN ID", "ACCOUNT", "DATE", "TYPE", "AMOUNT");
+        System.out.println("-".repeat(73));
+        for (Transaction t : transactions) {
+            System.out.printf("%-15s | %-10s | %-20s | %-14s | $%,-11.2f%n",
+                    t.getTransactionId(),
+                    t.getAccountNumber(),
+                    t.getFormattedTimestamp(),
+                    t.getType().equalsIgnoreCase("Deposit") ? "DEPOSIT (+)" : "WITHDRAWAL(-)",
+                    t.getAmount());
+        }
+        System.out.println("-".repeat(73));
+        double total = transactions.stream()
+                .map(Transaction::getAmount)
+                .reduce(0.0, Double::sum);
+        System.out.printf("Total: $%,.2f  (%d transactions)%n", total, transactions.size());
+    }
+
+    public static void printTransactionsByType(
+            List<Transaction> deposits,    double totalDeposits,
+            List<Transaction> withdrawals, double totalWithdrawals) {
+        System.out.println("\nTRANSACTIONS BY TYPE");
+        System.out.println(THICK);
+
+        System.out.println("DEPOSITS");
+        System.out.println("-".repeat(60));
+        if (deposits.isEmpty()) {
+            System.out.println(" No deposits found.");
+        } else {
+            System.out.printf("%-15s | %-10s | %-20s | %-12s%n", "TXN ID", "ACCOUNT", "DATE", "AMOUNT");
+            System.out.println("-".repeat(60));
+            for (Transaction t : deposits) {
+                System.out.printf("%-15s | %-10s | %-20s | $%,-11.2f%n",
+                        t.getTransactionId(), t.getAccountNumber(), t.getFormattedTimestamp(), t.getAmount());
+            }
+            System.out.printf("Total Deposits: $%,.2f  (%d)%n", totalDeposits, deposits.size());
+        }
+
+        System.out.println(THICK);
+        System.out.println("WITHDRAWALS");
+        System.out.println("-".repeat(60));
+        if (withdrawals.isEmpty()) {
+            System.out.println(" No withdrawals found.");
+        } else {
+            System.out.printf("%-15s | %-10s | %-20s | %-12s%n", "TXN ID", "ACCOUNT", "DATE", "AMOUNT");
+            System.out.println("-".repeat(60));
+            for (Transaction t : withdrawals) {
+                System.out.printf("%-15s | %-10s | %-20s | $%,-11.2f%n",
+                        t.getTransactionId(), t.getAccountNumber(), t.getFormattedTimestamp(), t.getAmount());
+            }
+            System.out.printf("Total Withdrawals: $%,.2f  (%d)%n", totalWithdrawals, withdrawals.size());
+        }
+
+        System.out.println(THICK);
+        double net = totalDeposits - totalWithdrawals;
+        System.out.printf("Net: %s$%,.2f%n", net >= 0 ? "+" : "-", Math.abs(net));
+    }
+
+    public static void printTransactionGroupSummary(Map<String, List<Transaction>> grouped) {
+        System.out.println("\nTRANSACTION GROUP SUMMARY");
+        System.out.println(THICK);
+        System.out.printf("%-20s | %-8s | %-15s%n", "TYPE", "COUNT", "TOTAL AMOUNT");
+        System.out.println("-".repeat(50));
+        for (Map.Entry<String, List<Transaction>> entry : grouped.entrySet()) {
+            double sum = entry.getValue().stream()
+                    .map(Transaction::getAmount)
+                    .reduce(0.0, Double::sum);
+            System.out.printf("%-20s | %-8d | $%,.2f%n",
+                    entry.getKey(), entry.getValue().size(), sum);
+        }
+        System.out.println(THICK);
     }
 
     public static void printAccountMenu() {

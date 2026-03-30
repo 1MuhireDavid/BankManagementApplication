@@ -61,9 +61,11 @@ public class FunctionalUtils {
 
 
 
-    /** Sums the amounts of all supplied transactions. */
+    /** Sums the amounts of all supplied transactions using reduce(). */
     public static double sumAmounts(List<Transaction> txns) {
-        return txns.stream().mapToDouble(Transaction::getAmount).sum();
+        return txns.stream()
+                .map(Transaction::getAmount)
+                .reduce(0.0, Double::sum);
     }
 
     /** Returns total balance across all accounts using method reference. */

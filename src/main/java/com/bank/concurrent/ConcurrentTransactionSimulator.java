@@ -6,7 +6,6 @@ import com.bank.services.AccountService;
 import com.bank.services.TransactionService;
 import com.bank.ui.logger.ConsoleLogger;
 import com.bank.utils.IdGenerator;
-
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +23,6 @@ public class ConcurrentTransactionSimulator {
     private final TransactionService transactionService;
     private final IdGenerator        transactionGen;
 
-//    private final Object depositLock  = new Object();
-//    private final Object withdrawLock = new Object();
 
     /** Per-account locks used by the parallel stream batch to avoid locking on a local variable. */
     private final ConcurrentHashMap<String, ReentrantLock> accountLocks = new ConcurrentHashMap<>();

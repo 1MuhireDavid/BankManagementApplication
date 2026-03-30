@@ -12,9 +12,12 @@ import com.bank.services.TransactionService;
 import com.bank.models.Transaction;
 import com.bank.services.AccountService;
 import com.bank.ui.logger.ConsoleLogger;
+import com.bank.utils.FunctionalUtils;
 import com.bank.utils.IdGenerator;
 
 import java.time.Clock;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import static com.bank.ui.Printer.*;
@@ -268,8 +271,74 @@ public class MenuHandler {
 
         Account acc = readAccountNumber(accountService);
         printStatementHeader(acc);
+
+        boolean back = false;
+        while (!back) {
+            printStatementMenu();
+            int choice = readInt("Enter choice: ");
+            switch (choice) {
+                case 1 -> showFullStatement(acc);
+                case 2 -> showTxnsByDate(acc, false);
+                case 3 -> showTxnsByAmount(acc, true);
+                case 4 -> showTxnsByAmount(acc, false);
+                case 5 -> showTxnsByType(acc);
+                case 6 -> showTxnGroupSummary(acc);
+                case 7 -> showTopDeposits(acc);
+                case 8 -> back = true;
+                default -> printInvalidChoice(1, 8);
+            }
+        }
+    }
+
+    private void showFullStatement(Account acc) {
+        printStatementHeader(acc);
         printTransactionHistory(acc.getAccountNumber(), transactionService.getTransactions(), transactionService.getTransactionCount());
-        System.out.println("\nPress Enter to continue...");
+        printPressEnter();
+        input.nextLine();
+    }
+
+    private void showTxnsByDate(Account acc, boolean descending) {
+        List<Transaction> txns = FunctionalUtils.filterByAccount(transactionService.getTransactions(), acc.getAccountNumber());
+        List<Transaction> sorted = descending
+                ? FunctionalUtils.sortByDateDesc(txns)
+                : FunctionalUtils.sortByDateAsc(txns);
+        Printer.printSortedTransactions(sorted, "Transactions — " + (descending ? "Newest First" : "Oldest First"));
+        printPressEnter();
+        input.nextLine();
+    }
+
+    private void showTxnsByAmount(Account acc, boolean descending) {
+        List<Transaction> txns = FunctionalUtils.filterByAccount(transactionService.getTransactions(), acc.getAccountNumber());
+        List<Transaction> sorted = descending
+                ? FunctionalUtils.sortByAmountDesc(txns)
+                : FunctionalUtils.sortByAmountAsc(txns);
+        Printer.printSortedTransactions(sorted, "Transactions — " + (descending ? "Largest First" : "Smallest First"));
+        printPressEnter();
+        input.nextLine();
+    }
+
+    private void showTxnsByType(Account acc) {
+        List<Transaction> txns = FunctionalUtils.filterByAccount(transactionService.getTransactions(), acc.getAccountNumber());
+        List<Transaction> deposits    = FunctionalUtils.filterByType(txns, "Deposit");
+        List<Transaction> withdrawals = FunctionalUtils.filterByType(txns, "Withdrawal");
+        Printer.printTransactionsByType(
+                deposits,    FunctionalUtils.sumAmounts(deposits),
+                withdrawals, FunctionalUtils.sumAmounts(withdrawals));
+        printPressEnter();
+        input.nextLine();
+    }
+
+    private void showTxnGroupSummary(Account acc) {
+        List<Transaction> txns = FunctionalUtils.filterByAccount(transactionService.getTransactions(), acc.getAccountNumber());
+        Printer.printTransactionGroupSummary(FunctionalUtils.groupByType(txns));
+        printPressEnter();
+        input.nextLine();
+    }
+
+    private void showTopDeposits(Account acc) {
+        List<Transaction> txns = FunctionalUtils.filterByAccount(transactionService.getTransactions(), acc.getAccountNumber());
+        Printer.printSortedTransactions(FunctionalUtils.sortTransactionByDeposit(txns), "Top Deposits — Largest First");
+        printPressEnter();
         input.nextLine();
     }
 
