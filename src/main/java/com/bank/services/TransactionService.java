@@ -2,8 +2,8 @@ package com.bank.services;
 
 import com.bank.models.Transaction;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Tracks and manages all financial transactions in the application.
@@ -12,7 +12,7 @@ public class TransactionService {
     private final List<Transaction> transactions;
 
     public TransactionService() {
-        transactions = new ArrayList<>();
+        transactions = new CopyOnWriteArrayList<>();
     }
 
     /**

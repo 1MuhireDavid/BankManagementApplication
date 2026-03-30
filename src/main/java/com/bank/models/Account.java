@@ -26,14 +26,14 @@ public abstract class Account implements Transactable {
 
     public abstract String getAccountSummaryLine();
 
-    public void deposit(double amount) {
+    public synchronized void deposit(double amount) {
         if (amount <= 0) {
             throw new InvalidAmountException("❌Error: Deposit amount must be positive.");
         }
         balance += amount;
     }
 
-    public void withdraw(double amount) {
+    public synchronized void withdraw(double amount) {
         if (amount <= 0) {
             throw new InvalidAmountException("Withdrawal amount must be positive.");
         }

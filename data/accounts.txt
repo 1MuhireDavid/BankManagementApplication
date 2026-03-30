@@ -3,3 +3,4 @@ ACC004|Checking|Premium|Igabe Rich|52|0784220831|rich@gmail.com|Gasabo|500.0|Act
 ACC001|Savings|Regular|david|20|0788821982|muhire@gmail.com|kigali|1000.0|Active
 ACC002|Savings|Premium|Mugabo Denis|45|0733320831|denis@gmail.com|Nyagatare|5000.0|Active
 ACC005|Checking|Regular|Agaba James|39|0723320831|agaba@gmail.com|KK 123 St|1200.0|Active
+ACC006|Savings|Regular|muhinde|45|0788828323|mu@gmail.com|kigali|1437.5117249185503|Active

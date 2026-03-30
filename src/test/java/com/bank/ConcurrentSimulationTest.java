@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConcurrentSimulationTest {
 
@@ -47,5 +48,30 @@ public class ConcurrentSimulationTest {
 
         System.out.println("Distinct transaction amounts: " + distinctAmounts);
         assertTrue(distinctAmounts > 1, "Expected more than one distinct amount in randomized simulation");
+    }
+
+    @Test
+    public void testDeterministicBalanceAccuracy() {
+        AccountService accountService = new AccountService();
+        TransactionService transactionService = new TransactionService();
+        IdGenerator idGen = new IdGenerator("ACC");
+        IdGenerator custGen = new IdGenerator("CUS");
+        IdGenerator txGen = new IdGenerator("TXN");
+
+        double initialBalance = 1000.0;
+        double amount = 100.0;
+        int threads = 5;
+
+        Customer customer = new RegularCustomer("Test User", 30, "123", "test@test.com", "Address", custGen);
+        Account account = new SavingsAccount(customer, initialBalance, idGen);
+        accountService.addAccount(account);
+
+        ConcurrentTransactionSimulator simulator = new ConcurrentTransactionSimulator(accountService, transactionService, txGen);
+
+        // Deterministic: each thread deposits $100 and withdraws $100 — net change is $0
+        simulator.run(account.getAccountNumber(), threads, amount, false);
+
+        assertEquals(initialBalance, account.getBalance(), 0.001,
+                "Final balance must equal initial balance when each thread's deposit equals its withdrawal");
     }
 }
